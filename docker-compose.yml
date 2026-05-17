@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: pharmd-db
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: pharmd
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pharmd-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pharmd-backend
+    ports:
+      - "8980:8980"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASS=password
+      - DB_NAME=pharmd
+      - SERVER_PORT=8980
+      - TOKEN_KEY=your-secret-key-change-in-production
+      - ACCESSTOKEN_EXPIRY=15
+      - REFRESHTOKEN_EXPIRY=24
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - pharmd-network
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: pharmd-web
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_API_URL=http://localhost:8980
+    depends_on:
+      - backend
+    networks:
+      - pharmd-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+networks:
+  pharmd-network:
+    driver: bridge
