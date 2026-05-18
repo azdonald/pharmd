@@ -9,6 +9,7 @@ import (
 	"github.com/azdonald/pharmd/backend/api/auth"
 	"github.com/azdonald/pharmd/backend/api/inventory"
 	"github.com/azdonald/pharmd/backend/api/locations"
+	"github.com/azdonald/pharmd/backend/api/suppliers"
 	"github.com/azdonald/pharmd/backend/api/patients"
 	"github.com/azdonald/pharmd/backend/api/permissions"
 	"github.com/azdonald/pharmd/backend/api/product_categories"
@@ -33,6 +34,7 @@ type app struct {
 	locations   *locations.ServerInterfaceWrapper
 	patients            *patients.ServerInterfaceWrapper
 	inventory           *inventory.ServerInterfaceWrapper
+	suppliers           *suppliers.ServerInterfaceWrapper
 	productCategories   *product_categories.ServerInterfaceWrapper
 	products            *products.ServerInterfaceWrapper
 	userRoles           service.UserRoleServiceManager
@@ -66,6 +68,7 @@ func (a *app) start(serverPort string) {
 	a.productCategories.RegisterProductCategoriesRoutes(r)
 	a.products.RegisterProductsRoutes(r)
 	a.inventory.RegisterInventoryRoutes(r)
+	a.suppliers.RegisterSuppliersRoutes(r)
 
 	log.Println("Starting server on port", serverPort)
 	if err := http.ListenAndServe(":"+serverPort, r); err != nil {
@@ -105,6 +108,7 @@ func initDependencies(database *sql.DB) *app {
 	locationRepo := repository.NewLocationRepositoryImpl(database)
 	patientRepo := repository.NewPatientRepositoryImpl(database)
 	inventoryRepo := repository.NewInventoryRepositoryImpl(database)
+	supplierRepo := repository.NewSupplierRepositoryImpl(database)
 	categoryRepo := repository.NewProductCategoryRepositoryImpl(database)
 	productRepo := repository.NewProductRepositoryImpl(database)
 	permRepo := repository.NewPermissionRepositoryImpl(database)
@@ -116,6 +120,7 @@ func initDependencies(database *sql.DB) *app {
 	locationSvc := service.NewLocationService(locationRepo)
 	patientSvc := service.NewPatientService(patientRepo)
 	inventorySvc := service.NewInventoryService(inventoryRepo)
+	supplierSvc := service.NewSupplierService(supplierRepo)
 	productCategorySvc := service.NewProductCategoryService(categoryRepo)
 	productSvc := service.NewProductService(productRepo)
 	userRoleSvc := service.NewUserRoleService(userRoleRepo, userRepo, roleRepo)
@@ -141,6 +146,9 @@ func initDependencies(database *sql.DB) *app {
 	inventoryServer := inventory.NewServer(inventorySvc)
 	inventoryWrapper := &inventory.ServerInterfaceWrapper{Handler: inventoryServer}
 
+	supplierServer := suppliers.NewServer(supplierSvc)
+	supplierWrapper := &suppliers.ServerInterfaceWrapper{Handler: supplierServer}
+
 	categoryServer := product_categories.NewServer(productCategorySvc)
 	categoryWrapper := &product_categories.ServerInterfaceWrapper{Handler: categoryServer}
 
@@ -155,6 +163,7 @@ func initDependencies(database *sql.DB) *app {
 		locations:   locationWrapper,
 		patients:            patientWrapper,
 		inventory:           inventoryWrapper,
+		suppliers:           supplierWrapper,
 		productCategories:   categoryWrapper,
 		products:            productWrapper,
 		userRoles:           userRoleSvc,

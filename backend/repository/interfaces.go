@@ -94,6 +94,16 @@ type InventoryExpiringView struct {
 	DaysUntilExpiry int
 }
 
+type SupplierRepository interface {
+	ListSuppliers(ctx context.Context, page, limit int, query string) ([]models.Supplier, int, error)
+	GetSupplierByID(ctx context.Context, id string) (*models.Supplier, error)
+	CreateSupplier(ctx context.Context, supplier models.Supplier) error
+	UpdateSupplier(ctx context.Context, id string, supplier models.Supplier) error
+	DeleteSupplier(ctx context.Context, id string) error
+	ListSupplierProducts(ctx context.Context, supplierID string) ([]models.SupplierProduct, error)
+	SetSupplierProducts(ctx context.Context, supplierID string, products []models.SupplierProduct) error
+}
+
 type InventoryRepository interface {
 	CreateBatch(ctx context.Context, batch models.StockBatch) error
 	GetBatchByID(ctx context.Context, id string) (*models.StockBatch, error)

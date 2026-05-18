@@ -70,6 +70,16 @@ type ProductServiceManager interface {
 	RemoveSubstitute(ctx context.Context, productID, substituteID string) error
 }
 
+type SupplierServiceManager interface {
+	ListSuppliers(ctx context.Context, page, limit int, query string) ([]models.Supplier, int, error)
+	GetSupplierByID(ctx context.Context, id string) (*models.Supplier, error)
+	CreateSupplier(ctx context.Context, supplier models.Supplier) (*models.Supplier, error)
+	UpdateSupplier(ctx context.Context, id string, supplier models.Supplier) (*models.Supplier, error)
+	DeleteSupplier(ctx context.Context, id string) error
+	ListSupplierProducts(ctx context.Context, supplierID string) ([]models.SupplierProduct, error)
+	SetSupplierProducts(ctx context.Context, supplierID string, products []models.SupplierProduct) ([]models.SupplierProduct, error)
+}
+
 type InventoryServiceManager interface {
 	CreateBatch(ctx context.Context, batch models.StockBatch) (*models.StockBatch, error)
 	ListStock(ctx context.Context, locationID string, page, limit int, query string) ([]repository.InventoryBatchView, int, error)

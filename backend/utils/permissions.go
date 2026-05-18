@@ -33,4 +33,9 @@ const (
 
 	PermInventoryManage = "inventory:manage"
 	PermInventoryRead   = "inventory:read"
+
+	PermSuppliersCreate = "suppliers:create"
+	PermSuppliersRead   = "suppliers:read"
+	PermSuppliersUpdate = "suppliers:update"
+	PermSuppliersDelete = "suppliers:delete"
 )

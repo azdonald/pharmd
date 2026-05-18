@@ -23,6 +23,9 @@ import Categories from "./pages/Categories";
 import Inventory from "./pages/Inventory";
 import StockReceipt from "./pages/StockReceipt";
 import AdjustmentForm from "./pages/AdjustmentForm";
+import Suppliers from "./pages/Suppliers";
+import SupplierForm from "./pages/SupplierForm";
+import SupplierDetail from "./pages/SupplierDetail";
 
 export default function App() {
   return (
@@ -53,6 +56,10 @@ export default function App() {
             <Route path="inventory" element={<Inventory />} />
             <Route path="inventory/receive" element={<StockReceipt />} />
             <Route path="inventory/adjust" element={<AdjustmentForm />} />
+            <Route path="suppliers" element={<Suppliers />} />
+            <Route path="suppliers/new" element={<SupplierForm />} />
+            <Route path="suppliers/:id" element={<SupplierDetail />} />
+            <Route path="suppliers/:id/edit" element={<SupplierForm />} />
           </Route>
         </Routes>
       </AuthProvider>

@@ -1,0 +1,319 @@
+openapi: 3.0.3
+info:
+  title: Suppliers API
+  description: API endpoints for supplier management
+  version: 1.0.0
+
+tags:
+  - name: suppliers
+    description: Supplier management
+
+paths:
+  /suppliers:
+    get:
+      tags:
+        - suppliers
+      summary: List suppliers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: query
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of suppliers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupplierListResponse'
+    post:
+      tags:
+        - suppliers
+      summary: Create a supplier
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSupplierRequest'
+      responses:
+        '201':
+          description: Supplier created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+
+  /suppliers/{id}:
+    get:
+      tags:
+        - suppliers
+      summary: Get supplier by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Supplier details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+    put:
+      tags:
+        - suppliers
+      summary: Update a supplier
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSupplierRequest'
+      responses:
+        '200':
+          description: Supplier updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+    delete:
+      tags:
+        - suppliers
+      summary: Delete a supplier
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Supplier deleted
+
+  /suppliers/{id}/products:
+    get:
+      tags:
+        - suppliers
+      summary: List supplier product prices
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Supplier product prices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SupplierProduct'
+    put:
+      tags:
+        - suppliers
+      summary: Set supplier product prices
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/SupplierProductInput'
+      responses:
+        '200':
+          description: Prices updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SupplierProduct'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Supplier:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        contact_person:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        payment_terms:
+          type: string
+        notes:
+          type: string
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+        updated_at:
+          type: string
+
+    CreateSupplierRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        contact_person:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        payment_terms:
+          type: string
+        notes:
+          type: string
+
+    UpdateSupplierRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        contact_person:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        payment_terms:
+          type: string
+        notes:
+          type: string
+        is_active:
+          type: boolean
+
+    SupplierListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Supplier'
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+
+    SupplierProduct:
+      type: object
+      properties:
+        id:
+          type: string
+        supplier_id:
+          type: string
+        product_id:
+          type: string
+        product_name:
+          type: string
+        unit_price:
+          type: number
+        min_order_qty:
+          type: integer
+        lead_time_days:
+          type: integer
+        notes:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+
+    SupplierProductInput:
+      type: object
+      required:
+        - product_id
+        - unit_price
+      properties:
+        product_id:
+          type: string
+        unit_price:
+          type: number
+        min_order_qty:
+          type: integer
+        lead_time_days:
+          type: integer
+        notes:
+          type: string

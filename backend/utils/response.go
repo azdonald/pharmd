@@ -52,3 +52,10 @@ func PtrOrZero32(f *float32) float32 {
 	}
 	return 0
 }
+
+func PtrOrZeroInt(i *int) int {
+	if i != nil {
+		return *i
+	}
+	return 0
+}
