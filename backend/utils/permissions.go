@@ -53,4 +53,14 @@ const (
 	PermDiscountsCreate = "discounts:create"
 	PermDiscountsUpdate = "discounts:update"
 	PermDiscountsDelete = "discounts:delete"
+
+	PermPrescribersCreate = "prescribers:create"
+	PermPrescribersRead   = "prescribers:read"
+	PermPrescribersUpdate = "prescribers:update"
+	PermPrescribersDelete = "prescribers:delete"
+
+	PermPrescriptionsCreate = "prescriptions:create"
+	PermPrescriptionsRead   = "prescriptions:read"
+	PermPrescriptionsUpdate = "prescriptions:update"
+	PermPrescriptionsDelete = "prescriptions:delete"
 )

@@ -11,6 +11,8 @@ import (
 	"github.com/azdonald/pharmd/backend/api/locations"
 	"github.com/azdonald/pharmd/backend/api/patients"
 	"github.com/azdonald/pharmd/backend/api/permissions"
+	"github.com/azdonald/pharmd/backend/api/prescribers"
+	"github.com/azdonald/pharmd/backend/api/prescriptions"
 	"github.com/azdonald/pharmd/backend/api/pricing"
 	"github.com/azdonald/pharmd/backend/api/product_categories"
 	"github.com/azdonald/pharmd/backend/api/products"
@@ -39,6 +41,8 @@ type app struct {
 	suppliers           *suppliers.ServerInterfaceWrapper
 	purchases           *purchases.ServerInterfaceWrapper
 	pricing             *pricing.ServerInterfaceWrapper
+	prescribers         *prescribers.ServerInterfaceWrapper
+	prescriptions       *prescriptions.ServerInterfaceWrapper
 	productCategories   *product_categories.ServerInterfaceWrapper
 	products            *products.ServerInterfaceWrapper
 	userRoles           service.UserRoleServiceManager
@@ -75,6 +79,8 @@ func (a *app) start(serverPort string) {
 	a.suppliers.RegisterSuppliersRoutes(r)
 	a.purchases.RegisterPurchasesRoutes(r)
 	a.pricing.RegisterPricingRoutes(r)
+	a.prescribers.RegisterPrescribersRoutes(r)
+	a.prescriptions.RegisterPrescriptionsRoutes(r)
 
 	log.Println("Starting server on port", serverPort)
 	if err := http.ListenAndServe(":"+serverPort, r); err != nil {
@@ -116,6 +122,8 @@ func initDependencies(database *sql.DB) *app {
 	inventoryRepo := repository.NewInventoryRepositoryImpl(database)
 	purchaseRepo := repository.NewPurchaseOrderRepositoryImpl(database)
 	pricingRepo := repository.NewPricingRepositoryImpl(database)
+	prescriberRepo := repository.NewPrescriberRepositoryImpl(database)
+	prescriptionRepo := repository.NewPrescriptionRepositoryImpl(database)
 	supplierRepo := repository.NewSupplierRepositoryImpl(database)
 	categoryRepo := repository.NewProductCategoryRepositoryImpl(database)
 	productRepo := repository.NewProductRepositoryImpl(database)
@@ -130,6 +138,8 @@ func initDependencies(database *sql.DB) *app {
 	inventorySvc := service.NewInventoryService(inventoryRepo)
 	purchaseSvc := service.NewPurchaseOrderService(purchaseRepo)
 	pricingSvc := service.NewPricingService(pricingRepo)
+	prescriberSvc := service.NewPrescriberService(prescriberRepo)
+	prescriptionSvc := service.NewPrescriptionService(prescriptionRepo)
 	supplierSvc := service.NewSupplierService(supplierRepo)
 	productCategorySvc := service.NewProductCategoryService(categoryRepo)
 	productSvc := service.NewProductService(productRepo)
@@ -162,6 +172,12 @@ func initDependencies(database *sql.DB) *app {
 	pricingServer := pricing.NewServer(pricingSvc)
 	pricingWrapper := &pricing.ServerInterfaceWrapper{Handler: pricingServer}
 
+	prescriberServer := prescribers.NewServer(prescriberSvc)
+	prescriberWrapper := &prescribers.ServerInterfaceWrapper{Handler: prescriberServer}
+
+	prescriptionServer := prescriptions.NewServer(prescriptionSvc, prescriberSvc)
+	prescriptionWrapper := &prescriptions.ServerInterfaceWrapper{Handler: prescriptionServer}
+
 	supplierServer := suppliers.NewServer(supplierSvc)
 	supplierWrapper := &suppliers.ServerInterfaceWrapper{Handler: supplierServer}
 
@@ -182,6 +198,8 @@ func initDependencies(database *sql.DB) *app {
 		suppliers:           supplierWrapper,
 		purchases:           purchaseWrapper,
 		pricing:             pricingWrapper,
+		prescribers:         prescriberWrapper,
+		prescriptions:       prescriptionWrapper,
 		productCategories:   categoryWrapper,
 		products:            productWrapper,
 		userRoles:           userRoleSvc,

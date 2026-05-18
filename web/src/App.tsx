@@ -31,6 +31,9 @@ import { PurchaseOrderForm } from "./pages/PurchaseOrderDetail";
 import PurchaseOrderDetail from "./pages/PurchaseOrderDetail";
 import Pricing from "./pages/Pricing";
 import DiscountRules from "./pages/DiscountRules";
+import Prescribers from "./pages/Prescribers";
+import Prescriptions from "./pages/Prescriptions";
+import PrescriptionDetail, { PrescriptionForm } from "./pages/PrescriptionDetail";
 
 export default function App() {
   return (
@@ -70,6 +73,10 @@ export default function App() {
             <Route path="purchases/:id" element={<PurchaseOrderDetail />} />
             <Route path="pricing" element={<Pricing />} />
             <Route path="discounts" element={<DiscountRules />} />
+            <Route path="prescribers" element={<Prescribers />} />
+            <Route path="prescriptions" element={<Prescriptions />} />
+            <Route path="prescriptions/new" element={<PrescriptionForm />} />
+            <Route path="prescriptions/:id" element={<PrescriptionDetail />} />
           </Route>
         </Routes>
       </AuthProvider>

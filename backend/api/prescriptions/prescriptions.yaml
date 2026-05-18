@@ -1,0 +1,300 @@
+openapi: 3.0.3
+info:
+  title: Prescriptions API
+  description: Prescription management
+  version: 1.0.0
+
+paths:
+  /prescriptions:
+    get:
+      tags:
+        - prescriptions
+      summary: List prescriptions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: patient_id
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of prescriptions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrescriptionListResponse'
+    post:
+      tags:
+        - prescriptions
+      summary: Create a prescription
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePrescriptionRequest'
+      responses:
+        '201':
+          description: Prescription created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prescription'
+
+  /prescriptions/{id}:
+    get:
+      tags:
+        - prescriptions
+      summary: Get prescription by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Prescription details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prescription'
+    put:
+      tags:
+        - prescriptions
+      summary: Update a prescription
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePrescriptionRequest'
+      responses:
+        '200':
+          description: Prescription updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prescription'
+    delete:
+      tags:
+        - prescriptions
+      summary: Delete a prescription
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Prescription deleted
+
+  /prescriptions/{id}/refill:
+    post:
+      tags:
+        - prescriptions
+      summary: Record a refill
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefillRequest'
+      responses:
+        '200':
+          description: Refill recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prescription'
+
+components:
+  schemas:
+    PrescriptionItem:
+      type: object
+      properties:
+        id:
+          type: string
+        product_id:
+          type: string
+        product_name:
+          type: string
+        dosage:
+          type: string
+        frequency:
+          type: string
+        duration:
+          type: string
+        quantity:
+          type: integer
+        refills_authorized:
+          type: integer
+        refills_used:
+          type: integer
+        notes:
+          type: string
+
+    Prescription:
+      type: object
+      properties:
+        id:
+          type: string
+        patient_id:
+          type: string
+        patient_name:
+          type: string
+        prescriber_id:
+          type: string
+        prescriber_name:
+          type: string
+        location_id:
+          type: string
+        status:
+          type: string
+        diagnosis:
+          type: string
+        notes:
+          type: string
+        issued_date:
+          type: string
+        expiry_date:
+          type: string
+        created_by:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PrescriptionItem'
+
+    CreatePrescriptionItem:
+      type: object
+      required:
+        - product_id
+        - dosage
+        - frequency
+        - quantity
+      properties:
+        product_id:
+          type: string
+        dosage:
+          type: string
+        frequency:
+          type: string
+        duration:
+          type: string
+        quantity:
+          type: integer
+        refills_authorized:
+          type: integer
+          default: 0
+        notes:
+          type: string
+
+    CreatePrescriptionRequest:
+      type: object
+      required:
+        - patient_id
+        - prescriber_id
+        - location_id
+        - items
+      properties:
+        patient_id:
+          type: string
+        prescriber_id:
+          type: string
+        location_id:
+          type: string
+        diagnosis:
+          type: string
+        notes:
+          type: string
+        issued_date:
+          type: string
+        expiry_date:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreatePrescriptionItem'
+
+    UpdatePrescriptionRequest:
+      type: object
+      properties:
+        diagnosis:
+          type: string
+        notes:
+          type: string
+        status:
+          type: string
+        expiry_date:
+          type: string
+
+    RefillRequest:
+      type: object
+      required:
+        - item_id
+      properties:
+        item_id:
+          type: string
+
+    PrescriptionListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prescription'
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
