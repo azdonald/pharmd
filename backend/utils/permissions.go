@@ -63,4 +63,7 @@ const (
 	PermPrescriptionsRead   = "prescriptions:read"
 	PermPrescriptionsUpdate = "prescriptions:update"
 	PermPrescriptionsDelete = "prescriptions:delete"
+
+	PermDispensingManage = "dispensing:manage"
+	PermDispensingRead   = "dispensing:read"
 )

@@ -32,6 +32,7 @@ export function Layout() {
           <NavLink to="/discounts">Discounts</NavLink>
           <NavLink to="/prescribers">Prescribers</NavLink>
           <NavLink to="/prescriptions">Prescriptions</NavLink>
+          <NavLink to="/dispensing">Dispensing</NavLink>
         </nav>
         <div className="sidebar-footer">
           <span>{user?.first_name} {user?.last_name}</span>

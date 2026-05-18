@@ -34,6 +34,8 @@ import DiscountRules from "./pages/DiscountRules";
 import Prescribers from "./pages/Prescribers";
 import Prescriptions from "./pages/Prescriptions";
 import PrescriptionDetail, { PrescriptionForm } from "./pages/PrescriptionDetail";
+import DispensingQueue from "./pages/DispensingQueue";
+import DispenseDetail from "./pages/DispenseDetail";
 
 export default function App() {
   return (
@@ -77,6 +79,8 @@ export default function App() {
             <Route path="prescriptions" element={<Prescriptions />} />
             <Route path="prescriptions/new" element={<PrescriptionForm />} />
             <Route path="prescriptions/:id" element={<PrescriptionDetail />} />
+            <Route path="dispensing" element={<DispensingQueue />} />
+            <Route path="dispensing/:id" element={<DispenseDetail />} />
           </Route>
         </Routes>
       </AuthProvider>

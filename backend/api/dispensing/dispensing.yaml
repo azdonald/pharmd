@@ -1,0 +1,372 @@
+openapi: 3.0.3
+info:
+  title: Dispensing API
+  description: Dispensing workflow - queue, dispense, interactions, labels
+  version: 1.0.0
+
+paths:
+  /dispensing:
+    get:
+      tags:
+        - dispensing
+      summary: List dispensing queue
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: prescription_id
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Dispensing queue
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DispenseListResponse'
+    post:
+      tags:
+        - dispensing
+      summary: Create a dispense record
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDispenseRequest'
+      responses:
+        '201':
+          description: Dispense created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DispenseRecord'
+
+  /dispensing/{id}:
+    get:
+      tags:
+        - dispensing
+      summary: Get dispense record
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Dispense record details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DispenseRecord'
+    put:
+      tags:
+        - dispensing
+      summary: Update dispense record (status, witness)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDispenseRequest'
+      responses:
+        '200':
+          description: Dispense record updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DispenseRecord'
+
+  /dispensing/{id}/status:
+    put:
+      tags:
+        - dispensing
+      summary: Update dispense status
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusUpdateRequest'
+      responses:
+        '200':
+          description: Status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DispenseRecord'
+
+  /dispensing/{id}/label:
+    get:
+      tags:
+        - dispensing
+      summary: Get label data for printing
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Label data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabelData'
+
+  /drugs/{productId}/interactions:
+    get:
+      tags:
+        - dispensing
+      summary: Check drug interactions for a patient
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: patient_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Interaction check results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InteractionWarning'
+
+  /drugs/{productId}/allergy-check:
+    get:
+      tags:
+        - dispensing
+      summary: Check patient allergies against a product
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: patient_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Allergy check results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AllergyWarning'
+
+components:
+  schemas:
+    AllergyWarning:
+      type: object
+      properties:
+        severity:
+          type: string
+        allergen:
+          type: string
+        reaction:
+          type: string
+
+    DispenseRecord:
+      type: object
+      properties:
+        id:
+          type: string
+        prescription_id:
+          type: string
+        prescription_item_id:
+          type: string
+        patient_id:
+          type: string
+        patient_name:
+          type: string
+        product_id:
+          type: string
+        product_name:
+          type: string
+        location_id:
+          type: string
+        quantity_dispensed:
+          type: integer
+        quantity_prescribed:
+          type: integer
+        pharmacist_id:
+          type: string
+        pharmacist_name:
+          type: string
+        technician_id:
+          type: string
+        status:
+          type: string
+        notes:
+          type: string
+        witness_name:
+          type: string
+        is_controlled:
+          type: boolean
+        dispensed_at:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+
+    CreateDispenseRequest:
+      type: object
+      required:
+        - prescription_item_id
+        - quantity_dispensed
+        - pharmacist_id
+      properties:
+        prescription_item_id:
+          type: string
+        quantity_dispensed:
+          type: integer
+        pharmacist_id:
+          type: string
+        technician_id:
+          type: string
+        notes:
+          type: string
+        witness_name:
+          type: string
+        is_controlled:
+          type: boolean
+          default: false
+
+    UpdateDispenseRequest:
+      type: object
+      properties:
+        technician_id:
+          type: string
+        witness_name:
+          type: string
+        notes:
+          type: string
+
+    StatusUpdateRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - pending
+            - in_progress
+            - completed
+            - cancelled
+
+    DispenseListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DispenseRecord'
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+
+    InteractionWarning:
+      type: object
+      properties:
+        severity:
+          type: string
+          enum:
+            - contraindicated
+            - major
+            - moderate
+            - minor
+        message:
+          type: string
+        interacting_product:
+          type: string
+        interacting_product_id:
+          type: string
+
+    LabelData:
+      type: object
+      properties:
+        patient_name:
+          type: string
+        drug_name:
+          type: string
+        dosage:
+          type: string
+        frequency:
+          type: string
+        quantity:
+          type: integer
+        pharmacist:
+          type: string
+        date:
+          type: string
+        instructions:
+          type: string
+        warning_labels:
+          type: array
+          items:
+            type: string
+
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT

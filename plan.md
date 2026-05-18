@@ -357,7 +357,7 @@ Iteration 2: Core Pharmacy          → F5, F6, F7, F8, F9, F10 (P1) ← CURRENT
 | F9. Purchase Orders | ✅ done | ✅ done |
 | F10. Pricing & Tax | ✅ done | ✅ done |
 | F11. Prescriptions | ✅ done | ✅ done |
-| F12. Dispensing | ❌ | ❌ |
+| F12. Dispensing | ✅ done | ✅ done |
 | F13. POS | ❌ | ❌ |
 | F14. Financials | ❌ | ❌ |
 | F15. Reports | ❌ | ❌ |
