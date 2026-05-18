@@ -26,6 +26,9 @@ import AdjustmentForm from "./pages/AdjustmentForm";
 import Suppliers from "./pages/Suppliers";
 import SupplierForm from "./pages/SupplierForm";
 import SupplierDetail from "./pages/SupplierDetail";
+import PurchaseOrders from "./pages/PurchaseOrders";
+import { PurchaseOrderForm } from "./pages/PurchaseOrderDetail";
+import PurchaseOrderDetail from "./pages/PurchaseOrderDetail";
 
 export default function App() {
   return (
@@ -60,6 +63,9 @@ export default function App() {
             <Route path="suppliers/new" element={<SupplierForm />} />
             <Route path="suppliers/:id" element={<SupplierDetail />} />
             <Route path="suppliers/:id/edit" element={<SupplierForm />} />
+            <Route path="purchases" element={<PurchaseOrders />} />
+            <Route path="purchases/new" element={<PurchaseOrderForm />} />
+            <Route path="purchases/:id" element={<PurchaseOrderDetail />} />
           </Route>
         </Routes>
       </AuthProvider>

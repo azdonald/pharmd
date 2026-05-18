@@ -9,12 +9,13 @@ import (
 	"github.com/azdonald/pharmd/backend/api/auth"
 	"github.com/azdonald/pharmd/backend/api/inventory"
 	"github.com/azdonald/pharmd/backend/api/locations"
-	"github.com/azdonald/pharmd/backend/api/suppliers"
 	"github.com/azdonald/pharmd/backend/api/patients"
 	"github.com/azdonald/pharmd/backend/api/permissions"
 	"github.com/azdonald/pharmd/backend/api/product_categories"
 	"github.com/azdonald/pharmd/backend/api/products"
+	"github.com/azdonald/pharmd/backend/api/purchases"
 	"github.com/azdonald/pharmd/backend/api/roles"
+	"github.com/azdonald/pharmd/backend/api/suppliers"
 	"github.com/azdonald/pharmd/backend/api/users"
 	"github.com/azdonald/pharmd/backend/db"
 	"github.com/azdonald/pharmd/backend/middleware"
@@ -35,6 +36,7 @@ type app struct {
 	patients            *patients.ServerInterfaceWrapper
 	inventory           *inventory.ServerInterfaceWrapper
 	suppliers           *suppliers.ServerInterfaceWrapper
+	purchases           *purchases.ServerInterfaceWrapper
 	productCategories   *product_categories.ServerInterfaceWrapper
 	products            *products.ServerInterfaceWrapper
 	userRoles           service.UserRoleServiceManager
@@ -69,6 +71,7 @@ func (a *app) start(serverPort string) {
 	a.products.RegisterProductsRoutes(r)
 	a.inventory.RegisterInventoryRoutes(r)
 	a.suppliers.RegisterSuppliersRoutes(r)
+	a.purchases.RegisterPurchasesRoutes(r)
 
 	log.Println("Starting server on port", serverPort)
 	if err := http.ListenAndServe(":"+serverPort, r); err != nil {
@@ -108,6 +111,7 @@ func initDependencies(database *sql.DB) *app {
 	locationRepo := repository.NewLocationRepositoryImpl(database)
 	patientRepo := repository.NewPatientRepositoryImpl(database)
 	inventoryRepo := repository.NewInventoryRepositoryImpl(database)
+	purchaseRepo := repository.NewPurchaseOrderRepositoryImpl(database)
 	supplierRepo := repository.NewSupplierRepositoryImpl(database)
 	categoryRepo := repository.NewProductCategoryRepositoryImpl(database)
 	productRepo := repository.NewProductRepositoryImpl(database)
@@ -120,6 +124,7 @@ func initDependencies(database *sql.DB) *app {
 	locationSvc := service.NewLocationService(locationRepo)
 	patientSvc := service.NewPatientService(patientRepo)
 	inventorySvc := service.NewInventoryService(inventoryRepo)
+	purchaseSvc := service.NewPurchaseOrderService(purchaseRepo)
 	supplierSvc := service.NewSupplierService(supplierRepo)
 	productCategorySvc := service.NewProductCategoryService(categoryRepo)
 	productSvc := service.NewProductService(productRepo)
@@ -146,6 +151,9 @@ func initDependencies(database *sql.DB) *app {
 	inventoryServer := inventory.NewServer(inventorySvc)
 	inventoryWrapper := &inventory.ServerInterfaceWrapper{Handler: inventoryServer}
 
+	purchaseServer := purchases.NewServer(purchaseSvc)
+	purchaseWrapper := &purchases.ServerInterfaceWrapper{Handler: purchaseServer}
+
 	supplierServer := suppliers.NewServer(supplierSvc)
 	supplierWrapper := &suppliers.ServerInterfaceWrapper{Handler: supplierServer}
 
@@ -164,6 +172,7 @@ func initDependencies(database *sql.DB) *app {
 		patients:            patientWrapper,
 		inventory:           inventoryWrapper,
 		suppliers:           supplierWrapper,
+		purchases:           purchaseWrapper,
 		productCategories:   categoryWrapper,
 		products:            productWrapper,
 		userRoles:           userRoleSvc,
