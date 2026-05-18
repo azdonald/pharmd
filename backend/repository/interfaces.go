@@ -49,3 +49,16 @@ type LocationRepository interface {
 	UpdateLocation(ctx context.Context, id string, location models.Location) error
 	DeleteLocation(ctx context.Context, id string) error
 }
+
+type PatientRepository interface {
+	ListPatients(ctx context.Context, page, limit int, query string) ([]models.Patient, int, error)
+	GetPatientByID(ctx context.Context, id string) (*models.Patient, error)
+	CreatePatient(ctx context.Context, patient models.Patient) error
+	UpdatePatient(ctx context.Context, id string, patient models.Patient) error
+	DeletePatient(ctx context.Context, id string) error
+	ListPatientAllergies(ctx context.Context, patientID string) ([]models.PatientAllergy, error)
+	AddPatientAllergy(ctx context.Context, allergy models.PatientAllergy) error
+	RemovePatientAllergy(ctx context.Context, patientID, allergyID string) error
+	ListPatientConditions(ctx context.Context, patientID string) ([]models.PatientCondition, error)
+	AddPatientCondition(ctx context.Context, condition models.PatientCondition) error
+}

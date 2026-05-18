@@ -23,8 +23,6 @@ A multi-tenant pharmacy management system where tenants range from single-locati
 
 ## API Design Workflow
 
-Each resource follows this pattern:
-
 ```
 backend/api/<resource>/
   <resource>.yaml       — hand-written OpenAPI 3.0.3 spec
@@ -34,396 +32,344 @@ backend/api/<resource>/
   types_gen.go          — generated (request/response structs)
 ```
 
-**Process:**
-1. Write the OpenAPI spec (`<resource>.yaml`) with paths, schemas, and `$ref` to shared models.
-2. Write `gen.go` with `//go:generate oapi-codegen -generate=chi-server,types ...`
-3. Run `go generate ./...` → produces `server_gen.go` + `types_gen.go`.
-4. Hand-write `server_impl.go` implementing the generated `ServerInterface`.
+1. Write the OpenAPI spec → 2. `go generate ./...` → 3. Hand-write `server_impl.go`
 
-Shared models live in `common/common.yaml` and are referenced via `$ref`.
+Shared models live in `common/common.yaml`.
 
 ---
 
-## Project Structure
-
-```
-pharmd/
-├── backend/
-│   ├── main.go
-│   ├── cmd/migrate/main.go
-│   ├── server/http.go            — router, middleware wiring, startup
-│   ├── db/db.go                  — MySQL connection
-│   ├── models/                   — domain structs
-│   ├── repository/               — data access (SQL)
-│   ├── service/                  — business logic
-│   ├── middleware/               — auth, tenant, audit
-│   ├── utils/                    — response, token, permissions
-│   ├── api/
-│   │   ├── common/               — shared schemas + types
-│   │   ├── auth/                 — authentication
-│   │   ├── locations/            — location CRUD
-│   │   ├── users/                — user CRUD
-│   │   ├── patients/             — patient management
-│   │   ├── products/             — drug/product catalog
-│   │   ├── inventory/            — stock management
-│   │   ├── suppliers/            — supplier management
-│   │   ├── purchases/            — purchase orders + GRN
-│   │   ├── prescriptions/        — prescription management
-│   │   ├── dispensing/           — dispensing workflow
-│   │   ├── pos/                  — point of sale
-│   │   ├── pricing/              — pricing & tax rules
-│   │   ├── reports/              — reporting
-│   │   └── ...                   — more as needed
-│   ├── migrations/               — olympian migration files
-│   ├── Dockerfile
-│   └── .env
-├── web/                          — React + Vite frontend
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── api/                  — API client
-│   │   ├── hooks/
-│   │   └── ...
-│   └── Dockerfile
-├── docker-compose.yml
-└── plan.md
-```
+## Implementation Rule
+Every feature must be implemented **backend-first, then frontend** before moving to the next feature. The plan pairs each backend task with its corresponding frontend task.
 
 ---
 
-# Feature List & Implementation Plan
+# Features & Iterations
 
-## Priority Levels
-- **P0** — must-have for any release (blocking)
-- **P1** — core pharmacy functionality
-- **P2** — important but not blocking
-- **P3** — nice-to-have / future
+Each feature lists tasks in order:
+1. OpenAPI spec & generated code
+2. Backend implementation (repo → service → handler)
+3. Migration (if applicable)
+4. Frontend implementation (API client → pages → components)
 
 ---
 
-## Iteration 1 — Auth & Tenant Foundation
+## Iteration 1 — Auth & Tenant Foundation (P0)
 
 ### F1. Organisation Registration & Login
-**Priority:** P0 | **API:** `auth/` | **Frontend:** Login/Register pages
 
 | # | Task | Backend | Frontend |
 |---|------|---------|----------|
-| 1.1 | Register endpoint (org + admin user created together) | `POST /v1/register` | Register page |
-| 1.2 | Login endpoint (email + password → JWT) | `POST /v1/login` | Login page |
-| 1.3 | Token refresh endpoint | `POST /v1/refresh` | Auto-refresh logic |
-| 1.4 | Logout endpoint | `POST /v1/logout` | Logout button |
-| 1.5 | Change password endpoint | `PUT /v1/change-password` | Change password form |
-| 1.6 | JWT auth middleware | `middleware/auth.go` | — |
-| 1.7 | Tenant context middleware (resolve org_id from JWT) | same as above | — |
+| 1.1 | Register endpoint | `POST /v1/register` | `src/pages/Register.tsx` |
+| 1.2 | Login endpoint | `POST /v1/login` | `src/pages/Login.tsx` |
+| 1.3 | Token refresh | `POST /v1/refresh` | `src/api/client.ts` (auto-refresh interceptor) |
+| 1.4 | Logout | `POST /v1/logout` | Logout button + token clear |
+| 1.5 | Change password | `PUT /v1/change-password` | `src/pages/ChangePassword.tsx` |
+| 1.6 | JWT auth middleware | `middleware/auth.go` | `src/api/auth.ts` (send token header) |
+| 1.7 | Frontend auth context | — | `src/context/AuthContext.tsx` |
 
-**Files to create:**
-- `api/auth/auth.yaml` + `gen.go` → generate → `server_impl.go` ✅ *done*
-- `repository/auth_repo_impl.go` ✅ *done*
-- `service/auth_service_impl.go` ✅ *done*
-- `middleware/auth.go` ✅ *done*
-- `web/src/pages/Login.tsx`, `Register.tsx`
-- `web/src/api/auth.ts`
+**Status:** Backend done ✅ | Frontend ✅
 
-**DB Migrations:**
-- `1765136578_create_organisations_table.go` ✅ *done*
-- `1765310022_create_user_table.go` ✅ *done*
+**Backend files:** `api/auth/auth.yaml`, `api/auth/server_impl.go`, `repository/auth_repo_impl.go`, `service/auth_service_impl.go`, `middleware/auth.go`, `utils/token.go`
+
+**Frontend files:** `src/api/auth.ts`, `src/api/client.ts`, `src/context/AuthContext.tsx`, `src/pages/Login.tsx`, `src/pages/Register.tsx`, `src/pages/ChangePassword.tsx`
 
 ---
 
-### F2. RBAC (Roles & Permissions)
-**Priority:** P0 | **API:** `permissions/`, `roles/` | **Frontend:** Role management UI
+### F2. Roles & Permissions (RBAC)
 
 | # | Task | Backend | Frontend |
 |---|------|---------|----------|
-| 2.1 | Seeded permission slugs (org:create, users:*, locations:*, etc.) | migration + `utils/permissions.go` | — |
-| 2.2 | Role CRUD per organisation | `api/roles/` | Roles page |
-| 2.3 | Assign permissions to role | `api/roles/{id}/permissions` | Role edit page |
-| 2.4 | Assign role to user | `api/users/{id}/roles` | User edit page |
-| 2.5 | Permission-checking middleware | `middleware/auth.go` `RequirePermission()` | Route guards |
-| 2.6 | Seed default roles (Admin, PIC, Pharmacist, Tech, Cashier) | migration | — |
+| 2.1 | Seed permission slugs | `migrations/1767000004_seed_permissions.go` | — |
+| 2.2 | Seed default roles (Admin, PIC, Pharmacist, Tech, Cashier) | `migrations/1767000005_seed_default_roles.go` | — |
+| 2.3 | List permissions | `GET /permissions` | `src/api/permissions.ts` |
+| 2.4 | Role CRUD | `api/roles/` (GET/POST /roles, GET/PUT/DELETE /roles/{id}) | `src/pages/Roles.tsx`, `src/pages/RoleForm.tsx` |
+| 2.5 | Assign permissions to role | `PUT /roles/{id}/permissions` | Role edit → permission checkboxes |
+| 2.6 | Permission middleware | `middleware/auth.go` (`RequirePermission`) | `src/components/ProtectedRoute.tsx` |
 
-**DB Migrations:**
-- `1767000000_create_permissions_table.go` ✅ *done*
-- `1767000001_create_roles_table.go` ✅ *done*
-- `1767000002_create_role_permissions_table.go` ✅ *done*
-- `1767000003_create_user_roles_table.go` ✅ *done*
-- `1767000004_seed_permissions.go`
-- `1767000005_seed_default_roles.go`
+**Status:** Backend done ✅ | Frontend ✅
 
 ---
 
 ### F3. Location Management
-**Priority:** P0 | **API:** `locations/` | **Frontend:** Location settings page
 
 | # | Task | Backend | Frontend |
 |---|------|---------|----------|
-| 3.1 | List/create locations per org | `api/locations/` | Location list page |
-| 3.2 | Get/update/delete location | `api/locations/{id}` | Location edit form |
-| 3.3 | Auto-create default location for single-location orgs | on org registration | — |
-| 3.4 | Location-scoped middleware (inject location_id from header or user context) | middleware | — |
+| 3.1 | List locations | `GET /locations` | `src/pages/Locations.tsx` |
+| 3.2 | Create location | `POST /locations` | `src/pages/LocationForm.tsx` |
+| 3.3 | Get location | `GET /locations/{id}` | — |
+| 3.4 | Update location | `PUT /locations/{id}` | Location edit form |
+| 3.5 | Delete location | `DELETE /locations/{id}` | Delete with confirmation |
+| 3.6 | Auto-create default location on registration | in `service/auth_service_impl.go` | — |
 
-**DB Migrations:**
-- `1766000000_create_locations_table.go` ✅ *done*
+**Status:** Backend done ✅ | Frontend ✅
 
 ---
 
 ### F4. User Management
-**Priority:** P0 | **API:** `users/` | **Frontend:** User management page
 
 | # | Task | Backend | Frontend |
 |---|------|---------|----------|
-| 4.1 | List users (paginated, scoped to org) | `api/users/` | User list |
-| 4.2 | Create user (invite with temp password) | `POST /users` | Create user form |
-| 4.3 | Update user profile | `PUT /users/{id}` | Edit user form |
-| 4.4 | Toggle user active/inactive | `PATCH /users/{id}/status` | Toggle switch |
-| 4.5 | Assign user to locations | `POST /users/{id}/locations` | Location assignment |
-| 4.6 | Assign user role | handled in F2.4 | handled in F2.4 |
+| 4.1 | List users | `GET /users` | `src/pages/Users.tsx` |
+| 4.2 | Create user (invite with temp password) | `POST /users` | `src/pages/UserForm.tsx` |
+| 4.3 | Get user | `GET /users/{id}` | — |
+| 4.4 | Update user | `PUT /users/{id}` | Edit user form |
+| 4.5 | Delete / deactivate user | `DELETE /users/{id}` | Toggle active |
+| 4.6 | Assign role to user | `PUT /users/{id}/roles` | Role dropdown on user form |
+
+**Status:** Backend done ✅ | Frontend ✅
 
 ---
 
-## Iteration 2 — Core Pharmacy
+## Iteration 2 — Core Pharmacy (P1)
 
 ### F5. Patient / Customer Management
-**Priority:** P1 | **API:** `patients/` | **Frontend:** Patient module
 
-| # | Task |
-|---|------|
-| 5.1 | Patient registration (name, DOB, gender, phone, email, address) |
-| 5.2 | Patient search (by name, phone, ID) |
-| 5.3 | Patient profile (visit history, prescriptions, allergies) |
-| 5.4 | Allergies & medical conditions registry |
-| 5.5 | Insurance / NHIS linkage |
-| 5.6 | Duplicate detection on registration |
+| # | Task | Backend | Frontend |
+|---|------|---------|----------|
+| 5.1 | Patient registration | `POST /patients` | `src/pages/PatientForm.tsx` |
+| 5.2 | Patient search | `GET /patients?query=` | `src/pages/Patients.tsx` (searchable list) |
+| 5.3 | Patient profile | `GET /patients/{id}` | `src/pages/PatientDetail.tsx` |
+| 5.4 | Update patient | `PUT /patients/{id}` | Edit form |
+| 5.5 | Allergies & conditions | `POST /patients/{id}/allergies` | Condition list editor |
+| 5.6 | Insurance linkage | `POST /patients/{id}/insurance` | Insurance form |
+
+**Status:** Backend done ✅ | Frontend ✅
+
+**Backend files:** `api/patients/`, `repository/patient_repo_impl.go`, `service/patient_service_impl.go`, `migrations/1768000000_create_patients_table.go`, `migrations/1768000001_create_patient_allergies_table.go`, `migrations/1768000002_create_patient_conditions_table.go`
+
+**Frontend files:** `src/api/patients.ts`, `src/pages/Patients.tsx`, `src/pages/PatientForm.tsx`, `src/pages/PatientDetail.tsx`
 
 **DB Tables:** `patients`, `patient_allergies`, `patient_conditions`, `patient_insurance`
 
 ---
 
 ### F6. Drug / Product Catalog
-**Priority:** P1 | **API:** `products/` | **Frontend:** Product management
 
-| # | Task |
-|---|------|
-| 6.1 | Product CRUD (brand name, generic name, manufacturer, form, strength) |
-| 6.2 | Drug classification (Rx, OTC, Controlled, Narcotic) |
-| 6.3 | Barcode / NDC code tracking |
-| 6.4 | Product categories |
-| 6.5 | Generic substitution mapping |
-| 6.6 | Storage conditions flag |
+| # | Task | Backend | Frontend |
+|---|------|---------|----------|
+| 6.1 | Product CRUD | `api/products/` | `src/pages/Products.tsx`, `src/pages/ProductForm.tsx` |
+| 6.2 | Drug classification | enum field on product | Select dropdown |
+| 6.3 | Barcode / NDC tracking | `POST /products/barcode-lookup` | Barcode input |
+| 6.4 | Product categories | `api/categories/` | Category tree |
+| 6.5 | Generic substitution | `POST /products/{id}/substitutes` | Substitution link editor |
+
+**Frontend:** `src/api/products.ts`, `src/pages/Products.tsx`, `src/pages/ProductForm.tsx`
 
 **DB Tables:** `products`, `product_categories`, `generic_substitutions`
 
 ---
 
 ### F7. Inventory & Stock Management
-**Priority:** P1 | **API:** `inventory/` | **Frontend:** Inventory dashboard
 
-| # | Task |
-|---|------|
-| 7.1 | Stock batch tracking (batch#, expiry, qty, cost price) per location |
-| 7.2 | Stock receipt (add stock to location) |
-| 7.3 | Stock adjustment (waste, damage, theft, found) |
-| 7.4 | Low-stock alerts (configurable threshold per product) |
-| 7.5 | Expiry tracking & alerts |
-| 7.6 | Stock count / reconciliation |
-| 7.7 | Inventory valuation (FIFO) |
+| # | Task | Backend | Frontend |
+|---|------|---------|----------|
+| 7.1 | Stock batch entry | `POST /inventory/batches` | Stock receipt form |
+| 7.2 | Stock adjustment | `POST /inventory/adjustments` | Adjustment form (waste, damage) |
+| 7.3 | Stock list per location | `GET /inventory?location_id=` | Inventory table |
+| 7.4 | Low-stock alerts | `GET /inventory/alerts` | Alert badges |
+| 7.5 | Expiry tracking | `GET /inventory/expiring?days=30` | Expiry report |
+| 7.6 | Stock count / reconciliation | `POST /inventory/counts` | Count sheet |
+
+**Frontend:** `src/api/inventory.ts`, `src/pages/Inventory.tsx`, `src/pages/StockReceipt.tsx`
 
 **DB Tables:** `stock_batches`, `stock_movements`, `inventory_alerts`
 
 ---
 
 ### F8. Supplier Management
-**Priority:** P1 | **API:** `suppliers/` | **Frontend:** Supplier list
 
-| # | Task |
-|---|------|
-| 8.1 | Supplier CRUD (name, contact, payment terms) |
-| 8.2 | Supplier price list per product |
+| # | Task | Backend | Frontend |
+|---|------|---------|----------|
+| 8.1 | Supplier CRUD | `api/suppliers/` | `src/pages/Suppliers.tsx` |
+| 8.2 | Supplier price list | `PUT /suppliers/{id}/prices` | Price list editor |
+
+**Frontend:** `src/api/suppliers.ts`, `src/pages/Suppliers.tsx`
 
 **DB Tables:** `suppliers`, `supplier_products`
 
 ---
 
 ### F9. Purchase Orders
-**Priority:** P1 | **API:** `purchases/` | **Frontend:** PO creation & tracking
 
-| # | Task |
-|---|------|
-| 9.1 | Create purchase order (select supplier, line items, expected date) |
-| 9.2 | PO approval workflow |
-| 9.3 | Goods Received Note (GRN) — match against PO, update stock |
-| 9.4 | PO status tracking (draft → sent → approved → received → cancelled) |
+| # | Task | Backend | Frontend |
+|---|------|---------|----------|
+| 9.1 | Create PO | `POST /purchases` | PO creation form |
+| 9.2 | PO list | `GET /purchases` | PO table |
+| 9.3 | PO approval | `PUT /purchases/{id}/approve` | Approve / reject buttons |
+| 9.4 | Goods Received Note | `POST /purchases/{id}/receive` | GRN form |
+| 9.5 | PO status tracking | status field | Status badges |
+
+**Frontend:** `src/api/purchases.ts`, `src/pages/PurchaseOrders.tsx`, `src/pages/POForm.tsx`
 
 **DB Tables:** `purchase_orders`, `purchase_order_items`, `goods_received_notes`
 
 ---
 
 ### F10. Pricing & Tax
-**Priority:** P1 | **API:** `pricing/` | **Frontend:** Pricing rules
 
-| # | Task |
-|---|------|
-| 10.1 | Base selling price per product per location |
-| 10.2 | Pricing formula (cost + markup %, fixed price) |
-| 10.3 | Tax rate per location |
-| 10.4 | Discount rules (percentage cap, max amount, approval threshold) |
-| 10.5 | Insurance price schedules |
+| # | Task | Backend | Frontend |
+|---|------|---------|----------|
+| 10.1 | Product price per location | `api/pricing/` | Price list editor |
+| 10.2 | Pricing formulas | config per location | Formula selector |
+| 10.3 | Tax rate per location | on location model | Tax field on location form |
+| 10.4 | Discount rules | `api/pricing/discounts` | Discount config |
+
+**Frontend:** `src/api/pricing.ts`, `src/pages/Pricing.tsx`
 
 **DB Tables:** `product_prices`, `tax_rates`, `discount_rules`
 
 ---
 
-## Iteration 3 — Prescription & Dispensing
+## Iteration 3 — Prescription & POS (P1)
 
 ### F11. Prescription Management
-**Priority:** P1 | **API:** `prescriptions/` | **Frontend:** Prescription intake
 
-| # | Task |
-|---|------|
-| 11.1 | Prescription intake (walk-in, external) |
-| 11.2 | Prescriber details (name, license#, phone) |
-| 11.3 | Line items (drug, qty, dosage, frequency, duration, refills) |
-| 11.4 | Prescription validation (patient exists, drug exists, refill check) |
-| 11.5 | Prescription status workflow (active → dispensed → exhausted → expired) |
-| 11.6 | Refill tracking |
+| # | Task | Backend | Frontend |
+|---|------|---------|----------|
+| 11.1 | Prescription intake | `POST /prescriptions` | Rx intake form |
+| 11.2 | Prescription list | `GET /prescriptions` | Rx queue |
+| 11.3 | Prescription detail | `GET /prescriptions/{id}` | Rx detail view |
+| 11.4 | Prescriber management | `api/prescribers/` | Prescriber lookup |
+| 11.5 | Refill tracking | `POST /prescriptions/{id}/refill` | Refill button |
+| 11.6 | Rx status workflow | status field | Status stepper |
+
+**Frontend:** `src/api/prescriptions.ts`, `src/pages/Prescriptions.tsx`, `src/pages/RxForm.tsx`
 
 **DB Tables:** `prescriptions`, `prescription_items`, `prescribers`, `refills`
 
 ---
 
 ### F12. Dispensing Workflow
-**Priority:** P1 | **API:** `dispensing/` | **Frontend:** Dispensing queue
 
-| # | Task |
-|---|------|
-| 12.1 | Dispensing queue per location (pending → in-progress → dispensed → collected) |
-| 12.2 | Drug interaction check at point of dispensing |
-| 12.3 | Allergy check against patient record |
-| 12.4 | Generic / therapeutic substitution with approval |
-| 12.5 | Partial dispensing (dispense less than prescribed qty) |
-| 12.6 | Controlled substance logs (with witness name, ID check) |
-| 12.7 | Label printing |
-| 12.8 | Patient information leaflet |
+| # | Task | Backend | Frontend |
+|---|------|---------|----------|
+| 12.1 | Dispensing queue | `GET /dispensing?status=pending` | Queue view |
+| 12.2 | Dispense medication | `POST /dispensing` | Dispense form |
+| 12.3 | Drug interaction check | `GET /drugs/{id}/interactions` | Warning modal |
+| 12.4 | Allergy check | auto on dispense | Alert banner |
+| 12.5 | Partial dispensing | qty field on dispense | Partial qty input |
+| 12.6 | Controlled substance log | additional fields on dispense | Witness signature field |
+| 12.7 | Label printing | `GET /dispensing/{id}/label` | Print button |
+
+**Frontend:** `src/api/dispensing.ts`, `src/pages/DispensingQueue.tsx`, `src/pages/DispenseForm.tsx`
 
 **DB Tables:** `dispensing_records`, `dispensing_logs`, `controlled_substance_logs`
 
 ---
 
 ### F13. Point of Sale
-**Priority:** P1 | **API:** `pos/` | **Frontend:** POS interface
 
-| # | Task |
-|---|------|
-| 13.1 | OTC sales (add products, calculate total, apply discount) |
-| 13.2 | Prescription sales (link to dispensed record) |
-| 13.3 | Payment methods (cash, card, transfer, mobile money, insurance) |
-| 13.4 | Receipt printing |
-| 13.5 | Hold / void / refund transactions |
-| 13.6 | Daily sales summary (X-report) |
-| 13.7 | End-of-day closeout (Z-report) |
+| # | Task | Backend | Frontend |
+|---|------|---------|----------|
+| 13.1 | OTC sale | `POST /pos/sales` | POS interface |
+| 13.2 | Prescription sale | link to dispensed record | POS → Rx lookup |
+| 13.3 | Multiple payment methods | `POST /pos/payments` | Payment split UI |
+| 13.4 | Receipt printing | `GET /pos/sales/{id}/receipt` | Print receipt |
+| 13.5 | Hold / void / refund | `PUT /pos/sales/{id}/void` | Void/refund buttons |
+| 13.6 | Daily summary (X-report) | `GET /pos/summary` | Summary modal |
+| 13.7 | End-of-day closeout (Z-report) | `POST /pos/close-day` | Closeout button |
+
+**Frontend:** `src/api/pos.ts`, `src/pages/POS.tsx`, `src/components/PaymenModal.tsx`
 
 **DB Tables:** `sales`, `sale_items`, `payments`, `refunds`, `daily_summaries`
 
 ---
 
-## Iteration 4 — Financial & Reporting
+## Iteration 4 — Financial & Reporting (P2)
 
 ### F14. Accounts & Financials
-**Priority:** P2 | **API:** `accounts/` | **Frontend:** Financial dashboard
 
-| # | Task |
-|---|------|
-| 14.1 | Daily cash-up / till reconciliation |
-| 14.2 | Accounts receivable (credit patients, insurance claims aging) |
-| 14.3 | Accounts payable (supplier invoice tracking) |
-| 14.4 | Expense tracking (utilities, rent, salaries) |
-| 14.5 | Profit margin per product / category report |
+| # | Task | Backend | Frontend |
+|---|------|---------|----------|
+| 14.1 | Daily cash-up | `POST /accounts/cashup` | Cash-up form |
+| 14.2 | AR (credit patients) | `GET /accounts/receivable` | AR aging table |
+| 14.3 | AP (supplier invoices) | `GET /accounts/payable` | AP table |
+| 14.4 | Expenses | `POST /accounts/expenses` | Expense form |
+| 14.5 | Profit margin report | `GET /reports/profit-margin` | Profit chart |
 
 **DB Tables:** `cashups`, `accounts_receivable`, `accounts_payable`, `expenses`
 
 ### F15. Reports & Analytics
-**Priority:** P2 | **API:** `reports/` | **Frontend:** Reports dashboard
 
-| # | Task |
-|---|------|
-| 15.1 | Sales report (by date range, location, cashier, payment method) |
-| 15.2 | Inventory report (stock value, aging, turnover) |
-| 15.3 | Prescription report (volume, top drugs, top prescribers) |
-| 15.4 | Expiry report (products expiring in next N days) |
-| 15.5 | Low-stock report |
-| 15.6 | Dispensing statistics |
-| 15.7 | Dashboard widgets (today's revenue, pending Rx count, alerts) |
-| 15.8 | Export to CSV / PDF |
-
-**DB Tables:** `report_cache` (if needed)
+| # | Task | Backend | Frontend |
+|---|------|---------|----------|
+| 15.1 | Sales report | `GET /reports/sales` | Filterable report table |
+| 15.2 | Inventory report | `GET /reports/inventory` | Report table |
+| 15.3 | Prescription report | `GET /reports/prescriptions` | Report table |
+| 15.4 | Expiry report | `GET /reports/expiry` | Report table |
+| 15.5 | Dashboard widgets | `GET /dashboard` | Dashboard page |
 
 ### F16. Audit & Compliance
-**Priority:** P2 | **API:** `audit/` | **Frontend:** Audit log viewer
 
-| # | Task |
-|---|------|
-| 16.1 | Activity log for all mutations (who did what, when, to what) |
-| 16.2 | Controlled substance perpetual inventory log |
-| 16.3 | Prescription record retention & search |
-| 16.4 | Data export tooling (GDPR right-to-access) |
-| 16.5 | Data deletion tooling (GDPR right-to-erasure) |
-
-**DB Tables:** `activity_logs`
+| # | Task | Backend | Frontend |
+|---|------|---------|----------|
+| 16.1 | Activity log | `GET /audit` | Audit log table |
+| 16.2 | Controlled substance log | `GET /audit/controlled` | Regulatory log |
+| 16.3 | Data export | `GET /export` | Export button |
 
 ---
 
-## Iteration 5 — Multi-Location & Platform
+## Iteration 5 — Multi-Location & Platform (P2/P3)
 
 ### F17. Multi-Location Chain Features
-**Priority:** P2 | **API:** `chain/` | **Frontend:** Chain dashboard
 
-| # | Task |
-|---|------|
-| 17.1 | Centralized purchasing (HQ creates POs, distributes to locations) |
-| 17.2 | Inter-location stock transfer request → approval → fulfillment |
-| 17.3 | Consolidated reporting across all locations |
-| 17.4 | Cross-location patient lookup |
-| 17.5 | Regional manager / area supervisor role with multi-location scope |
-| 17.6 | Location-level override on master catalog (different prices per store) |
+| # | Backend | Frontend |
+|---|---------|----------|
+| 17.1 | Centralized purchasing (`POST /chain/purchase-orders`) | Chain PO form |
+| 17.2 | Inter-location transfers (`POST /chain/transfers`) | Transfer request form |
+| 17.3 | Consolidated reports (`GET /chain/reports`) | Chain dashboard |
+| 17.4 | Cross-location patient lookup (`GET /chain/patients?query=`) | Global search |
 
 ### F18. Platform Administration
-**Priority:** P3 | **API:** `admin/` | **Frontend:** Admin panel
 
-| # | Task |
-|---|------|
-| 18.1 | Super admin tenant management (view all orgs, suspend, activate) |
-| 18.2 | Feature flags per tenant |
-| 18.3 | Rate limiting |
-| 18.4 | Backup / restore CLI |
-| 18.5 | Health monitoring dashboard |
+| # | Backend | Frontend |
+|---|---------|----------|
+| 18.1 | Super admin tenant management | Admin panel |
+| 18.2 | Feature flags per tenant | Toggle UI |
 
 ### F19. Integrations
-**Priority:** P3
 
-| # | Task |
-|---|------|
-| 19.1 | SMS notifications (refill reminders, pickup alerts) |
-| 19.2 | Email notifications |
-| 19.3 | Insurance claims submission |
-| 19.4 | NDC / RxNorm drug code lookup |
-| 19.5 | Accounting export (CSV for QuickBooks) |
+SMS, email, insurance claims, NDC lookup, accounting export.
 
 ---
 
 ## Implementation Roadmap
 
 ```
-Iteration 1: Auth & Foundation     → F1, F2, F3, F4    → P0 features
-Iteration 2: Core Pharmacy          → F5, F6, F7, F8, F9, F10 → P1 features
-Iteration 3: Prescription & POS     → F11, F12, F13     → P1 features
-Iteration 4: Financial & Reporting  → F14, F15, F16     → P2 features
-Iteration 5: Multi-Location & Ops   → F17, F18, F19     → P2/P3 features
+Iteration 1: Auth & Foundation     → F1, F2, F3, F4     (P0) ✅ DONE
+Iteration 2: Core Pharmacy          → F5, F6, F7, F8, F9, F10 (P1) ← CURRENT
 ```
 
 ---
 
+## Progress
+
+| Feature | Backend | Frontend |
+|---------|---------|----------|
+| F1. Auth & Registration | ✅ done | ✅ done |
+| F2. Roles & Permissions | ✅ done | ✅ done |
+| F3. Location Management | ✅ done | ✅ done |
+| F4. User Management | ✅ done | ✅ done |
+| F5. Patients | ✅ done | ✅ done |
+| F6. Products | ❌ | ❌ |
+| F7. Inventory | ❌ | ❌ |
+| F8. Suppliers | ❌ | ❌ |
+| F9. Purchase Orders | ❌ | ❌ |
+| F10. Pricing & Tax | ❌ | ❌ |
+| F11. Prescriptions | ❌ | ❌ |
+| F12. Dispensing | ❌ | ❌ |
+| F13. POS | ❌ | ❌ |
+| F14. Financials | ❌ | ❌ |
+| F15. Reports | ❌ | ❌ |
+| F16. Audit | ❌ | ❌ |
+| F17. Multi-Location Chain | ❌ | ❌ |
+| F18. Platform Admin | ❌ | ❌ |
+| F19. Integrations | ❌ | ❌ |
+
+---
+
 ## Design Principles
-- **Tenant isolation first** — every query includes `organisation_id` filter; never trust client-side.
-- **Location-aware from day one** — inventory, pricing, and user access scoped to location.
-- **Audit everything** — pharmacy is regulated; every stock movement, dispense, and user action is logged.
+- **Tenant isolation first** — every query includes `organisation_id`; never trust client-side.
+- **Location-aware from day one** — inventory, pricing, user access scoped to location.
+- **Audit everything** — pharmacy is regulated; every stock movement, dispense, and action logged.
 - **Regulatory ready** — HIPAA/GDPR, controlled substance tracking, prescription retention laws.

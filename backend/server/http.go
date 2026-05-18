@@ -8,6 +8,7 @@ import (
 
 	"github.com/azdonald/pharmd/backend/api/auth"
 	"github.com/azdonald/pharmd/backend/api/locations"
+	"github.com/azdonald/pharmd/backend/api/patients"
 	"github.com/azdonald/pharmd/backend/api/permissions"
 	"github.com/azdonald/pharmd/backend/api/roles"
 	"github.com/azdonald/pharmd/backend/api/users"
@@ -27,6 +28,7 @@ type app struct {
 	roles       *roles.ServerInterfaceWrapper
 	permissions *permissions.ServerInterfaceWrapper
 	locations   *locations.ServerInterfaceWrapper
+	patients    *patients.ServerInterfaceWrapper
 	userRoles   service.UserRoleServiceManager
 }
 
@@ -54,6 +56,7 @@ func (a *app) start(serverPort string) {
 	a.roles.RegisterRolesRoutes(r)
 	a.permissions.RegisterPermissionsRoutes(r)
 	a.locations.RegisterLocationsRoutes(r)
+	a.patients.RegisterPatientsRoutes(r)
 
 	log.Println("Starting server on port", serverPort)
 	if err := http.ListenAndServe(":"+serverPort, r); err != nil {
@@ -91,6 +94,7 @@ func initDependencies(database *sql.DB) *app {
 	userRoleRepo := repository.NewUserRoleRepositoryImpl(database)
 	roleRepo := repository.NewRoleRepositoryImpl(database)
 	locationRepo := repository.NewLocationRepositoryImpl(database)
+	patientRepo := repository.NewPatientRepositoryImpl(database)
 	permRepo := repository.NewPermissionRepositoryImpl(database)
 
 	authSvc := service.NewAuthService(authRepo, userRepo, locationRepo, userRoleRepo)
@@ -98,6 +102,7 @@ func initDependencies(database *sql.DB) *app {
 	roleSvc := service.NewRoleService(roleRepo)
 	permSvc := service.NewPermissionService(permRepo)
 	locationSvc := service.NewLocationService(locationRepo)
+	patientSvc := service.NewPatientService(patientRepo)
 	userRoleSvc := service.NewUserRoleService(userRoleRepo, userRepo, roleRepo)
 
 	authServer := auth.NewServer(authSvc)
@@ -115,12 +120,16 @@ func initDependencies(database *sql.DB) *app {
 	locationServer := locations.NewServer(locationSvc)
 	locationWrapper := &locations.ServerInterfaceWrapper{Handler: locationServer}
 
+	patientServer := patients.NewServer(patientSvc)
+	patientWrapper := &patients.ServerInterfaceWrapper{Handler: patientServer}
+
 	return &app{
 		auth:        authWrapper,
 		users:       usersWrapper,
 		roles:       rolesWrapper,
 		permissions: permWrapper,
 		locations:   locationWrapper,
+		patients:    patientWrapper,
 		userRoles:   userRoleSvc,
 	}
 }

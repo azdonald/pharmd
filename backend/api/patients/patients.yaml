@@ -1,0 +1,428 @@
+openapi: 3.0.3
+info:
+  title: Patients API
+  description: API endpoints for patient/customer management
+  version: 1.0.0
+
+tags:
+  - name: patients
+    description: Patient management
+
+paths:
+  /patients:
+    get:
+      tags:
+        - patients
+      summary: List/search patients
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: query
+          in: query
+          schema:
+            type: string
+          description: Search by name, phone, or email
+      responses:
+        '200':
+          description: List of patients
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientListResponse'
+    post:
+      tags:
+        - patients
+      summary: Register a new patient
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePatientRequest'
+      responses:
+        '201':
+          description: Patient created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+
+  /patients/{id}:
+    get:
+      tags:
+        - patients
+      summary: Get patient by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Patient details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+        '404':
+          description: Patient not found
+    put:
+      tags:
+        - patients
+      summary: Update a patient
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePatientRequest'
+      responses:
+        '200':
+          description: Patient updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+    delete:
+      tags:
+        - patients
+      summary: Delete (deactivate) a patient
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Patient deactivated
+
+  /patients/{id}/allergies:
+    get:
+      tags:
+        - patients
+      summary: List patient allergies
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of allergies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PatientAllergy'
+    post:
+      tags:
+        - patients
+      summary: Add allergy to patient
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePatientAllergyRequest'
+      responses:
+        '201':
+          description: Allergy added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientAllergy'
+    delete:
+      tags:
+        - patients
+      summary: Remove allergy from patient
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: allergy_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Allergy removed
+
+  /patients/{id}/conditions:
+    get:
+      tags:
+        - patients
+      summary: List patient conditions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of conditions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PatientCondition'
+    post:
+      tags:
+        - patients
+      summary: Add condition to patient
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePatientConditionRequest'
+      responses:
+        '201':
+          description: Condition added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientCondition'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Patient:
+      type: object
+      properties:
+        id:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        date_of_birth:
+          type: string
+        gender:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        blood_group:
+          type: string
+        genotype:
+          type: string
+        notes:
+          type: string
+        emergency_contact_name:
+          type: string
+        emergency_contact_phone:
+          type: string
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+        updated_at:
+          type: string
+
+    CreatePatientRequest:
+      type: object
+      required:
+        - first_name
+        - last_name
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        date_of_birth:
+          type: string
+        gender:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        blood_group:
+          type: string
+        genotype:
+          type: string
+        notes:
+          type: string
+        emergency_contact_name:
+          type: string
+        emergency_contact_phone:
+          type: string
+
+    UpdatePatientRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        date_of_birth:
+          type: string
+        gender:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        blood_group:
+          type: string
+        genotype:
+          type: string
+        notes:
+          type: string
+        emergency_contact_name:
+          type: string
+        emergency_contact_phone:
+          type: string
+        is_active:
+          type: boolean
+
+    PatientListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Patient'
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+
+    PatientAllergy:
+      type: object
+      properties:
+        id:
+          type: string
+        patient_id:
+          type: string
+        allergy:
+          type: string
+        severity:
+          type: string
+        notes:
+          type: string
+        created_at:
+          type: string
+
+    CreatePatientAllergyRequest:
+      type: object
+      required:
+        - allergy
+      properties:
+        allergy:
+          type: string
+        severity:
+          type: string
+        notes:
+          type: string
+
+    PatientCondition:
+      type: object
+      properties:
+        id:
+          type: string
+        patient_id:
+          type: string
+        condition:
+          type: string
+        notes:
+          type: string
+        created_at:
+          type: string
+
+    CreatePatientConditionRequest:
+      type: object
+      required:
+        - condition
+      properties:
+        condition:
+          type: string
+        notes:
+          type: string

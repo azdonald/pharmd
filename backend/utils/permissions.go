@@ -20,4 +20,9 @@ const (
 	PermRolesRead   = "roles:read"
 	PermRolesUpdate = "roles:update"
 	PermRolesDelete = "roles:delete"
+
+	PermPatientsCreate = "patients:create"
+	PermPatientsRead   = "patients:read"
+	PermPatientsUpdate = "patients:update"
+	PermPatientsDelete = "patients:delete"
 )
