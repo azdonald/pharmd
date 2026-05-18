@@ -70,6 +70,15 @@ type ProductServiceManager interface {
 	RemoveSubstitute(ctx context.Context, productID, substituteID string) error
 }
 
+type PurchaseOrderServiceManager interface {
+	ListPurchaseOrders(ctx context.Context, page, limit int, status string) ([]models.PurchaseOrder, int, error)
+	GetPurchaseOrderByID(ctx context.Context, id string) (*models.PurchaseOrder, error)
+	CreatePurchaseOrder(ctx context.Context, po models.PurchaseOrder, items []models.PurchaseOrderItem) (*models.PurchaseOrder, error)
+	ApprovePurchaseOrder(ctx context.Context, id string) (*models.PurchaseOrder, error)
+	RejectPurchaseOrder(ctx context.Context, id string) (*models.PurchaseOrder, error)
+	ReceiveGoods(ctx context.Context, id string, items []models.PurchaseOrderItem, notes string) (*models.PurchaseOrder, error)
+}
+
 type SupplierServiceManager interface {
 	ListSuppliers(ctx context.Context, page, limit int, query string) ([]models.Supplier, int, error)
 	GetSupplierByID(ctx context.Context, id string) (*models.Supplier, error)

@@ -38,4 +38,9 @@ const (
 	PermSuppliersRead   = "suppliers:read"
 	PermSuppliersUpdate = "suppliers:update"
 	PermSuppliersDelete = "suppliers:delete"
+
+	PermPurchasesCreate  = "purchases:create"
+	PermPurchasesRead    = "purchases:read"
+	PermPurchasesApprove = "purchases:approve"
+	PermPurchasesReceive = "purchases:receive"
 )

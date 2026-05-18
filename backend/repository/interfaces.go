@@ -94,6 +94,14 @@ type InventoryExpiringView struct {
 	DaysUntilExpiry int
 }
 
+type PurchaseOrderRepository interface {
+	ListPurchaseOrders(ctx context.Context, page, limit int, status string) ([]models.PurchaseOrder, int, error)
+	GetPurchaseOrderByID(ctx context.Context, id string) (*models.PurchaseOrder, error)
+	CreatePurchaseOrder(ctx context.Context, po models.PurchaseOrder, items []models.PurchaseOrderItem) error
+	UpdatePOStatus(ctx context.Context, id, status, approvedBy string) error
+	ReceiveGoods(ctx context.Context, poID string, items []models.PurchaseOrderItem, notes, userID string) error
+}
+
 type SupplierRepository interface {
 	ListSuppliers(ctx context.Context, page, limit int, query string) ([]models.Supplier, int, error)
 	GetSupplierByID(ctx context.Context, id string) (*models.Supplier, error)
