@@ -43,4 +43,14 @@ const (
 	PermPurchasesRead    = "purchases:read"
 	PermPurchasesApprove = "purchases:approve"
 	PermPurchasesReceive = "purchases:receive"
+
+	PermPricingRead   = "pricing:read"
+	PermPricingCreate = "pricing:create"
+	PermPricingUpdate = "pricing:update"
+	PermPricingDelete = "pricing:delete"
+
+	PermDiscountsRead   = "discounts:read"
+	PermDiscountsCreate = "discounts:create"
+	PermDiscountsUpdate = "discounts:update"
+	PermDiscountsDelete = "discounts:delete"
 )

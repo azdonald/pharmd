@@ -102,6 +102,18 @@ type PurchaseOrderRepository interface {
 	ReceiveGoods(ctx context.Context, poID string, items []models.PurchaseOrderItem, notes, userID string) error
 }
 
+type PricingRepository interface {
+	ListPrices(ctx context.Context, productID, locationID string, page, limit int) ([]models.ProductPrice, int, error)
+	GetPriceByID(ctx context.Context, id string) (*models.ProductPrice, error)
+	UpsertPrice(ctx context.Context, price models.ProductPrice) error
+	DeletePrice(ctx context.Context, id string) error
+	ListDiscountRules(ctx context.Context, page, limit int) ([]models.DiscountRule, int, error)
+	GetDiscountRuleByID(ctx context.Context, id string) (*models.DiscountRule, error)
+	CreateDiscountRule(ctx context.Context, rule models.DiscountRule) error
+	UpdateDiscountRule(ctx context.Context, id string, rule models.DiscountRule) error
+	DeleteDiscountRule(ctx context.Context, id string) error
+}
+
 type SupplierRepository interface {
 	ListSuppliers(ctx context.Context, page, limit int, query string) ([]models.Supplier, int, error)
 	GetSupplierByID(ctx context.Context, id string) (*models.Supplier, error)

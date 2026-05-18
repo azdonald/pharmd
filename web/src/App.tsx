@@ -29,6 +29,8 @@ import SupplierDetail from "./pages/SupplierDetail";
 import PurchaseOrders from "./pages/PurchaseOrders";
 import { PurchaseOrderForm } from "./pages/PurchaseOrderDetail";
 import PurchaseOrderDetail from "./pages/PurchaseOrderDetail";
+import Pricing from "./pages/Pricing";
+import DiscountRules from "./pages/DiscountRules";
 
 export default function App() {
   return (
@@ -66,6 +68,8 @@ export default function App() {
             <Route path="purchases" element={<PurchaseOrders />} />
             <Route path="purchases/new" element={<PurchaseOrderForm />} />
             <Route path="purchases/:id" element={<PurchaseOrderDetail />} />
+            <Route path="pricing" element={<Pricing />} />
+            <Route path="discounts" element={<DiscountRules />} />
           </Route>
         </Routes>
       </AuthProvider>

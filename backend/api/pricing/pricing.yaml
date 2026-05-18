@@ -1,0 +1,414 @@
+openapi: 3.0.3
+info:
+  title: Pricing API
+  description: Product pricing per location and discount rules
+  version: 1.0.0
+
+tags:
+  - name: pricing
+    description: Product pricing
+  - name: discounts
+    description: Discount rules
+
+paths:
+  /pricing:
+    get:
+      tags:
+        - pricing
+      summary: List product prices
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: product_id
+          in: query
+          schema:
+            type: string
+        - name: location_id
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of product prices
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceListResponse'
+    post:
+      tags:
+        - pricing
+      summary: Create or update a product price
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertPriceRequest'
+      responses:
+        '200':
+          description: Price saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductPrice'
+
+  /pricing/{id}:
+    get:
+      tags:
+        - pricing
+      summary: Get product price by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Price details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductPrice'
+    delete:
+      tags:
+        - pricing
+      summary: Delete a product price
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Price deleted
+
+  /pricing/rules:
+    get:
+      tags:
+        - discounts
+      summary: List discount rules
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of discount rules
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscountRuleListResponse'
+    post:
+      tags:
+        - discounts
+      summary: Create a discount rule
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDiscountRuleRequest'
+      responses:
+        '201':
+          description: Discount rule created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscountRule'
+
+  /pricing/rules/{id}:
+    get:
+      tags:
+        - discounts
+      summary: Get discount rule by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Discount rule details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscountRule'
+    put:
+      tags:
+        - discounts
+      summary: Update a discount rule
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDiscountRuleRequest'
+      responses:
+        '200':
+          description: Discount rule updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscountRule'
+    delete:
+      tags:
+        - discounts
+      summary: Delete a discount rule
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Discount rule deleted
+
+components:
+  schemas:
+    ProductPrice:
+      type: object
+      properties:
+        id:
+          type: string
+        product_id:
+          type: string
+        product_name:
+          type: string
+        location_id:
+          type: string
+        location_name:
+          type: string
+        selling_price:
+          type: number
+          format: float
+        cost_price:
+          type: number
+          format: float
+        min_price:
+          type: number
+          format: float
+        max_discount:
+          type: number
+          format: float
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+        updated_at:
+          type: string
+
+    UpsertPriceRequest:
+      type: object
+      required:
+        - product_id
+        - location_id
+        - selling_price
+      properties:
+        product_id:
+          type: string
+        location_id:
+          type: string
+        selling_price:
+          type: number
+          format: float
+        cost_price:
+          type: number
+          format: float
+        min_price:
+          type: number
+          format: float
+        max_discount:
+          type: number
+          format: float
+
+    PriceListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductPrice'
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+
+    DiscountRule:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - percentage
+            - fixed
+        value:
+          type: number
+          format: float
+        min_order_value:
+          type: number
+          format: float
+        max_discount_amount:
+          type: number
+          format: float
+        applies_to:
+          type: string
+          enum:
+            - all
+            - category
+            - product
+          default: all
+        applies_to_id:
+          type: string
+        is_active:
+          type: boolean
+        start_date:
+          type: string
+        end_date:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+
+    CreateDiscountRuleRequest:
+      type: object
+      required:
+        - name
+        - type
+        - value
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - percentage
+            - fixed
+        value:
+          type: number
+          format: float
+        min_order_value:
+          type: number
+          format: float
+        max_discount_amount:
+          type: number
+          format: float
+        applies_to:
+          type: string
+          enum:
+            - all
+            - category
+            - product
+          default: all
+        applies_to_id:
+          type: string
+        is_active:
+          type: boolean
+          default: true
+        start_date:
+          type: string
+        end_date:
+          type: string
+
+    UpdateDiscountRuleRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - percentage
+            - fixed
+        value:
+          type: number
+          format: float
+        min_order_value:
+          type: number
+          format: float
+        max_discount_amount:
+          type: number
+          format: float
+        applies_to:
+          type: string
+          enum:
+            - all
+            - category
+            - product
+        applies_to_id:
+          type: string
+        is_active:
+          type: boolean
+        start_date:
+          type: string
+        end_date:
+          type: string
+
+    DiscountRuleListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiscountRule'
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
