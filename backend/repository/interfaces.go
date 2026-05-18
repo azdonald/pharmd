@@ -29,5 +29,23 @@ type UserRoleRepository interface {
 }
 
 type RoleRepository interface {
-	// Placeholder for future role operations
+	ListRoles(ctx context.Context, page, limit int) ([]models.Role, error)
+	GetRoleByID(ctx context.Context, id string) (*models.Role, error)
+	CreateRole(ctx context.Context, role models.Role) error
+	UpdateRole(ctx context.Context, id string, role models.Role) error
+	DeleteRole(ctx context.Context, id string) error
+	GetRolePermissions(ctx context.Context, roleID string) ([]string, error)
+	SetRolePermissions(ctx context.Context, roleID string, permissionIDs []string) error
+}
+
+type PermissionRepository interface {
+	ListPermissions(ctx context.Context) ([]models.Permission, error)
+}
+
+type LocationRepository interface {
+	ListLocations(ctx context.Context, page, limit int) ([]models.Location, error)
+	GetLocationByID(ctx context.Context, id string) (*models.Location, error)
+	CreateLocation(ctx context.Context, location models.Location) error
+	UpdateLocation(ctx context.Context, id string, location models.Location) error
+	DeleteLocation(ctx context.Context, id string) error
 }

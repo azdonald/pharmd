@@ -15,4 +15,9 @@ const (
 	PermLocationsRead   = "locations:read"
 	PermLocationsUpdate = "locations:update"
 	PermLocationsDelete = "locations:delete"
+
+	PermRolesCreate = "roles:create"
+	PermRolesRead   = "roles:read"
+	PermRolesUpdate = "roles:update"
+	PermRolesDelete = "roles:delete"
 )

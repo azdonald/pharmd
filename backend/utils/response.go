@@ -31,3 +31,17 @@ func WriteResponse(ctx context.Context, w http.ResponseWriter, response interfac
 func Ptr[T any](v T) *T {
 	return &v
 }
+
+func PtrOrZero(s *string) string {
+	if s != nil {
+		return *s
+	}
+	return ""
+}
+
+func PtrOrZero64(f *float64) float64 {
+	if f != nil {
+		return *f
+	}
+	return 0
+}

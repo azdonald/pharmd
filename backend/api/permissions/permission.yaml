@@ -1,0 +1,67 @@
+openapi: 3.0.3
+info:
+  title: Permissions API
+  description: API endpoints for listing permissions
+  version: 1.0.0
+
+tags:
+  - name: permissions
+    description: Permission operations
+
+paths:
+  /permissions:
+    get:
+      tags:
+        - permissions
+      summary: List all permissions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Permission'
+
+  /permissions/{id}:
+    get:
+      tags:
+        - permissions
+      summary: Get a permission by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Permission details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Permission'
+        '404':
+          description: Permission not found
+
+components:
+  schemas:
+    Permission:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string

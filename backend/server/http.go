@@ -7,6 +7,10 @@ import (
 	"os"
 
 	"github.com/azdonald/pharmd/backend/api/auth"
+	"github.com/azdonald/pharmd/backend/api/locations"
+	"github.com/azdonald/pharmd/backend/api/permissions"
+	"github.com/azdonald/pharmd/backend/api/roles"
+	"github.com/azdonald/pharmd/backend/api/users"
 	"github.com/azdonald/pharmd/backend/db"
 	"github.com/azdonald/pharmd/backend/middleware"
 	_ "github.com/azdonald/pharmd/backend/migrations"
@@ -18,8 +22,12 @@ import (
 )
 
 type app struct {
-	auth      *auth.ServerInterfaceWrapper
-	userRoles service.UserRoleServiceManager
+	auth        *auth.ServerInterfaceWrapper
+	users       *users.ServerInterfaceWrapper
+	roles       *roles.ServerInterfaceWrapper
+	permissions *permissions.ServerInterfaceWrapper
+	locations   *locations.ServerInterfaceWrapper
+	userRoles   service.UserRoleServiceManager
 }
 
 func (a *app) start(serverPort string) {
@@ -42,6 +50,10 @@ func (a *app) start(serverPort string) {
 	})
 
 	a.auth.RegisterAuthRoutes(r)
+	a.users.RegisterUsersRoutes(r)
+	a.roles.RegisterRolesRoutes(r)
+	a.permissions.RegisterPermissionsRoutes(r)
+	a.locations.RegisterLocationsRoutes(r)
 
 	log.Println("Starting server on port", serverPort)
 	if err := http.ListenAndServe(":"+serverPort, r); err != nil {
@@ -78,19 +90,37 @@ func initDependencies(database *sql.DB) *app {
 	userRepo := repository.NewUserRepositoryImpl(database)
 	userRoleRepo := repository.NewUserRoleRepositoryImpl(database)
 	roleRepo := repository.NewRoleRepositoryImpl(database)
+	locationRepo := repository.NewLocationRepositoryImpl(database)
+	permRepo := repository.NewPermissionRepositoryImpl(database)
 
-	authSvc := service.NewAuthService(authRepo, userRepo)
+	authSvc := service.NewAuthService(authRepo, userRepo, locationRepo, userRoleRepo)
+	userSvc := service.NewUserService(userRepo)
+	roleSvc := service.NewRoleService(roleRepo)
+	permSvc := service.NewPermissionService(permRepo)
+	locationSvc := service.NewLocationService(locationRepo)
 	userRoleSvc := service.NewUserRoleService(userRoleRepo, userRepo, roleRepo)
 
 	authServer := auth.NewServer(authSvc)
-	authWrapper := &auth.ServerInterfaceWrapper{
-		Handler: authServer,
-	}
+	authWrapper := &auth.ServerInterfaceWrapper{Handler: authServer}
+
+	usersServer := users.NewServer(userSvc, userRoleSvc)
+	usersWrapper := &users.ServerInterfaceWrapper{Handler: usersServer}
+
+	rolesServer := roles.NewServer(roleSvc)
+	rolesWrapper := &roles.ServerInterfaceWrapper{Handler: rolesServer}
+
+	permServer := permissions.NewServer(permSvc)
+	permWrapper := &permissions.ServerInterfaceWrapper{Handler: permServer}
+
+	locationServer := locations.NewServer(locationSvc)
+	locationWrapper := &locations.ServerInterfaceWrapper{Handler: locationServer}
 
 	return &app{
-		auth:      authWrapper,
-		userRoles: userRoleSvc,
+		auth:        authWrapper,
+		users:       usersWrapper,
+		roles:       rolesWrapper,
+		permissions: permWrapper,
+		locations:   locationWrapper,
+		userRoles:   userRoleSvc,
 	}
 }
-
-

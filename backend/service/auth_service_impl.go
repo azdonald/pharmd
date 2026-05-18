@@ -13,12 +13,24 @@ import (
 )
 
 type AuthService struct {
-	authRepo repository.AuthRepository
-	userRepo repository.UserRepository
+	authRepo     repository.AuthRepository
+	userRepo     repository.UserRepository
+	locationRepo repository.LocationRepository
+	userRoleRepo repository.UserRoleRepository
 }
 
-func NewAuthService(authRepo repository.AuthRepository, userRepo repository.UserRepository) AuthServiceManager {
-	return &AuthService{authRepo: authRepo, userRepo: userRepo}
+func NewAuthService(
+	authRepo repository.AuthRepository,
+	userRepo repository.UserRepository,
+	locationRepo repository.LocationRepository,
+	userRoleRepo repository.UserRoleRepository,
+) AuthServiceManager {
+	return &AuthService{
+		authRepo:     authRepo,
+		userRepo:     userRepo,
+		locationRepo: locationRepo,
+		userRoleRepo: userRoleRepo,
+	}
 }
 
 func (s *AuthService) Register(ctx context.Context, org models.Organisation, user models.User) (*models.User, error) {
@@ -43,6 +55,31 @@ func (s *AuthService) Register(ctx context.Context, org models.Organisation, use
 	user.UpdatedAt = time.Now()
 
 	if err := s.authRepo.CreateUser(ctx, user); err != nil {
+		return nil, err
+	}
+
+	defaultLocation := models.Location{
+		ID:             ulid.Make().String(),
+		OrganisationID: org.ID,
+		Name:           org.Name + " - Main",
+		Address:        "",
+		City:           "",
+		State:          "",
+		Country:        "",
+		Phone:          "",
+		Email:          "",
+		TaxRate:        0,
+		Timezone:       "UTC",
+		IsActive:       true,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
+	}
+
+	if err := s.locationRepo.CreateLocation(ctx, defaultLocation); err != nil {
+		return nil, err
+	}
+
+	if err := s.userRoleRepo.AssignRoleToUser(ctx, user.ID, "R001", org.ID); err != nil {
 		return nil, err
 	}
 
