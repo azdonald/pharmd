@@ -45,3 +45,10 @@ func PtrOrZero64(f *float64) float64 {
 	}
 	return 0
 }
+
+func PtrOrZero32(f *float32) float32 {
+	if f != nil {
+		return *f
+	}
+	return 0
+}

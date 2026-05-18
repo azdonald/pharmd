@@ -50,6 +50,61 @@ type LocationRepository interface {
 	DeleteLocation(ctx context.Context, id string) error
 }
 
+type ProductCategoryRepository interface {
+	ListCategories(ctx context.Context) ([]models.ProductCategory, error)
+	GetCategoryByID(ctx context.Context, id string) (*models.ProductCategory, error)
+	CreateCategory(ctx context.Context, category models.ProductCategory) error
+	UpdateCategory(ctx context.Context, id string, category models.ProductCategory) error
+	DeleteCategory(ctx context.Context, id string) error
+}
+
+type ProductRepository interface {
+	ListProducts(ctx context.Context, page, limit int, query, categoryID string) ([]models.Product, int, error)
+	GetProductByID(ctx context.Context, id string) (*models.Product, error)
+	GetProductByBarcode(ctx context.Context, barcode string) (*models.Product, error)
+	CreateProduct(ctx context.Context, product models.Product) error
+	UpdateProduct(ctx context.Context, id string, product models.Product) error
+	DeleteProduct(ctx context.Context, id string) error
+	ListSubstitutes(ctx context.Context, productID string) ([]models.GenericSubstitution, error)
+	AddSubstitute(ctx context.Context, sub models.GenericSubstitution) error
+	RemoveSubstitute(ctx context.Context, productID, substituteID string) error
+}
+
+type InventoryBatchView struct {
+	StockBatch models.StockBatch
+	ProductName    string
+	BrandName      string
+	GenericName    string
+	Classification string
+	ReorderLevel   int
+}
+
+type InventoryAlertView struct {
+	ProductID     string
+	ProductName   string
+	BrandName     string
+	TotalQuantity int
+	ReorderLevel  int
+	LocationID    string
+}
+
+type InventoryExpiringView struct {
+	StockBatch     models.StockBatch
+	ProductName    string
+	DaysUntilExpiry int
+}
+
+type InventoryRepository interface {
+	CreateBatch(ctx context.Context, batch models.StockBatch) error
+	GetBatchByID(ctx context.Context, id string) (*models.StockBatch, error)
+	UpdateBatchQty(ctx context.Context, id string, remainingQty int) error
+	ListStock(ctx context.Context, locationID string, page, limit int, query string) ([]InventoryBatchView, int, error)
+	ListAlerts(ctx context.Context, locationID string) ([]InventoryAlertView, error)
+	ListExpiring(ctx context.Context, locationID string, days int) ([]InventoryExpiringView, error)
+	CreateMovement(ctx context.Context, movement models.StockMovement) error
+	StockCount(ctx context.Context, items []models.StockCountItem, userID string) (int, error)
+}
+
 type PatientRepository interface {
 	ListPatients(ctx context.Context, page, limit int, query string) ([]models.Patient, int, error)
 	GetPatientByID(ctx context.Context, id string) (*models.Patient, error)

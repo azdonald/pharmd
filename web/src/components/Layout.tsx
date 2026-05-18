@@ -23,6 +23,9 @@ export function Layout() {
           <NavLink to="/permissions">Permissions</NavLink>
           <NavLink to="/locations">Locations</NavLink>
           <NavLink to="/patients">Patients</NavLink>
+          <NavLink to="/products">Products</NavLink>
+          <NavLink to="/categories">Categories</NavLink>
+          <NavLink to="/inventory">Inventory</NavLink>
         </nav>
         <div className="sidebar-footer">
           <span>{user?.first_name} {user?.last_name}</span>

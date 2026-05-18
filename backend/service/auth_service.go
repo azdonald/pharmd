@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/azdonald/pharmd/backend/models"
+	"github.com/azdonald/pharmd/backend/repository"
 )
 
 type AuthServiceManager interface {
@@ -47,6 +48,35 @@ type LocationServiceManager interface {
 	CreateLocation(ctx context.Context, location models.Location) (*models.Location, error)
 	UpdateLocation(ctx context.Context, id string, location models.Location) (*models.Location, error)
 	DeleteLocation(ctx context.Context, id string) error
+}
+
+type ProductCategoryServiceManager interface {
+	ListCategories(ctx context.Context) ([]models.ProductCategory, error)
+	GetCategoryByID(ctx context.Context, id string) (*models.ProductCategory, error)
+	CreateCategory(ctx context.Context, category models.ProductCategory) (*models.ProductCategory, error)
+	UpdateCategory(ctx context.Context, id string, category models.ProductCategory) (*models.ProductCategory, error)
+	DeleteCategory(ctx context.Context, id string) error
+}
+
+type ProductServiceManager interface {
+	ListProducts(ctx context.Context, page, limit int, query, categoryID string) ([]models.Product, int, error)
+	GetProductByID(ctx context.Context, id string) (*models.Product, error)
+	GetProductByBarcode(ctx context.Context, barcode string) (*models.Product, error)
+	CreateProduct(ctx context.Context, product models.Product) (*models.Product, error)
+	UpdateProduct(ctx context.Context, id string, product models.Product) (*models.Product, error)
+	DeleteProduct(ctx context.Context, id string) error
+	ListSubstitutes(ctx context.Context, productID string) ([]models.GenericSubstitution, error)
+	AddSubstitute(ctx context.Context, productID string, sub models.GenericSubstitution) (*models.GenericSubstitution, error)
+	RemoveSubstitute(ctx context.Context, productID, substituteID string) error
+}
+
+type InventoryServiceManager interface {
+	CreateBatch(ctx context.Context, batch models.StockBatch) (*models.StockBatch, error)
+	ListStock(ctx context.Context, locationID string, page, limit int, query string) ([]repository.InventoryBatchView, int, error)
+	CreateAdjustment(ctx context.Context, movement models.StockMovement) (*models.StockMovement, error)
+	ListAlerts(ctx context.Context, locationID string) ([]repository.InventoryAlertView, error)
+	ListExpiring(ctx context.Context, locationID string, days int) ([]repository.InventoryExpiringView, error)
+	StockCount(ctx context.Context, items []models.StockCountItem) (int, error)
 }
 
 type OrganisationServiceManager interface {

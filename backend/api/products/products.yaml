@@ -1,0 +1,377 @@
+openapi: 3.0.3
+info:
+  title: Products API
+  description: API endpoints for product/drug catalog management
+  version: 1.0.0
+
+tags:
+  - name: products
+    description: Product catalog management
+
+paths:
+  /products:
+    get:
+      tags:
+        - products
+      summary: List/search products
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: query
+          in: query
+          schema:
+            type: string
+          description: Search by name, brand, generic name, barcode, or NDC
+        - name: category_id
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of products
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListResponse'
+    post:
+      tags:
+        - products
+      summary: Create a product
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductRequest'
+      responses:
+        '201':
+          description: Product created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+
+  /products/{id}:
+    get:
+      tags:
+        - products
+      summary: Get product by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+    put:
+      tags:
+        - products
+      summary: Update a product
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProductRequest'
+      responses:
+        '200':
+          description: Product updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+    delete:
+      tags:
+        - products
+      summary: Delete a product
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Product deleted
+
+  /products/{id}/substitutes:
+    get:
+      tags:
+        - products
+      summary: List generic substitutes for a product
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of substitutes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GenericSubstitution'
+    post:
+      tags:
+        - products
+      summary: Add a generic substitute
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGenericSubstitutionRequest'
+      responses:
+        '201':
+          description: Substitute added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSubstitution'
+    delete:
+      tags:
+        - products
+      summary: Remove a generic substitute
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: substitute_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Substitute removed
+
+  /products/barcode-lookup:
+    post:
+      tags:
+        - products
+      summary: Lookup product by barcode/NDC
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BarcodeLookupRequest'
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        category_id:
+          type: string
+          nullable: true
+        classification:
+          type: string
+        brand_name:
+          type: string
+        generic_name:
+          type: string
+        manufacturer:
+          type: string
+        barcode:
+          type: string
+        ndc:
+          type: string
+        unit_of_measure:
+          type: string
+        strength:
+          type: string
+        form:
+          type: string
+        reorder_level:
+          type: integer
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+        updated_at:
+          type: string
+
+    CreateProductRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category_id:
+          type: string
+          nullable: true
+        classification:
+          type: string
+        brand_name:
+          type: string
+        generic_name:
+          type: string
+        manufacturer:
+          type: string
+        barcode:
+          type: string
+        ndc:
+          type: string
+        unit_of_measure:
+          type: string
+        strength:
+          type: string
+        form:
+          type: string
+        reorder_level:
+          type: integer
+
+    UpdateProductRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category_id:
+          type: string
+          nullable: true
+        classification:
+          type: string
+        brand_name:
+          type: string
+        generic_name:
+          type: string
+        manufacturer:
+          type: string
+        barcode:
+          type: string
+        ndc:
+          type: string
+        unit_of_measure:
+          type: string
+        strength:
+          type: string
+        form:
+          type: string
+        reorder_level:
+          type: integer
+        is_active:
+          type: boolean
+
+    ProductListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+
+    GenericSubstitution:
+      type: object
+      properties:
+        id:
+          type: string
+        product_id:
+          type: string
+        substitute_product_id:
+          type: string
+        substitute_name:
+          type: string
+        notes:
+          type: string
+        created_at:
+          type: string
+
+    CreateGenericSubstitutionRequest:
+      type: object
+      required:
+        - substitute_product_id
+      properties:
+        substitute_product_id:
+          type: string
+        notes:
+          type: string
+
+    BarcodeLookupRequest:
+      type: object
+      required:
+        - barcode
+      properties:
+        barcode:
+          type: string

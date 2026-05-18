@@ -25,4 +25,12 @@ const (
 	PermPatientsRead   = "patients:read"
 	PermPatientsUpdate = "patients:update"
 	PermPatientsDelete = "patients:delete"
+
+	PermProductsCreate = "products:create"
+	PermProductsRead   = "products:read"
+	PermProductsUpdate = "products:update"
+	PermProductsDelete = "products:delete"
+
+	PermInventoryManage = "inventory:manage"
+	PermInventoryRead   = "inventory:read"
 )

@@ -16,6 +16,13 @@ import UserForm from "./pages/UserForm";
 import Patients from "./pages/Patients";
 import PatientForm from "./pages/PatientForm";
 import PatientDetail from "./pages/PatientDetail";
+import Products from "./pages/Products";
+import ProductForm from "./pages/ProductForm";
+import ProductDetail from "./pages/ProductDetail";
+import Categories from "./pages/Categories";
+import Inventory from "./pages/Inventory";
+import StockReceipt from "./pages/StockReceipt";
+import AdjustmentForm from "./pages/AdjustmentForm";
 
 export default function App() {
   return (
@@ -38,6 +45,14 @@ export default function App() {
             <Route path="patients/new" element={<PatientForm />} />
             <Route path="patients/:id" element={<PatientDetail />} />
             <Route path="patients/:id/edit" element={<PatientForm />} />
+            <Route path="products" element={<Products />} />
+            <Route path="products/new" element={<ProductForm />} />
+            <Route path="products/:id" element={<ProductDetail />} />
+            <Route path="products/:id/edit" element={<ProductForm />} />
+            <Route path="categories" element={<Categories />} />
+            <Route path="inventory" element={<Inventory />} />
+            <Route path="inventory/receive" element={<StockReceipt />} />
+            <Route path="inventory/adjust" element={<AdjustmentForm />} />
           </Route>
         </Routes>
       </AuthProvider>
