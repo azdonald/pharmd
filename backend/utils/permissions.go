@@ -66,4 +66,11 @@ const (
 
 	PermDispensingManage = "dispensing:manage"
 	PermDispensingRead   = "dispensing:read"
+
+	PermPosCreate   = "pos:create"
+	PermPosRead     = "pos:read"
+	PermPosUpdate   = "pos:update"
+	PermPosRefund   = "pos:refund"
+	PermPosReports  = "pos:reports"
+	PermPosCloseout = "pos:closeout"
 )

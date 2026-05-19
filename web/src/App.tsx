@@ -36,6 +36,8 @@ import Prescriptions from "./pages/Prescriptions";
 import PrescriptionDetail, { PrescriptionForm } from "./pages/PrescriptionDetail";
 import DispensingQueue from "./pages/DispensingQueue";
 import DispenseDetail from "./pages/DispenseDetail";
+import POS from "./pages/POS";
+import SalesHistory from "./pages/SalesHistory";
 
 export default function App() {
   return (
@@ -81,6 +83,8 @@ export default function App() {
             <Route path="prescriptions/:id" element={<PrescriptionDetail />} />
             <Route path="dispensing" element={<DispensingQueue />} />
             <Route path="dispensing/:id" element={<DispenseDetail />} />
+            <Route path="pos" element={<POS />} />
+            <Route path="sales" element={<SalesHistory />} />
           </Route>
         </Routes>
       </AuthProvider>

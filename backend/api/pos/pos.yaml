@@ -1,0 +1,476 @@
+openapi: 3.0.3
+info:
+  title: POS API
+  description: Point of Sale - sales, payments, receipts, reports
+  version: 1.0.0
+
+paths:
+  /pos/sales:
+    get:
+      tags:
+        - pos
+      summary: List sales
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Sales list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaleListResponse'
+    post:
+      tags:
+        - pos
+      summary: Create a sale
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSaleRequest'
+      responses:
+        '201':
+          description: Sale created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sale'
+
+  /pos/sales/{id}:
+    get:
+      tags:
+        - pos
+      summary: Get sale by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Sale details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sale'
+    put:
+      tags:
+        - pos
+      summary: Update sale (hold/void/refund)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSaleRequest'
+      responses:
+        '200':
+          description: Sale updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sale'
+
+  /pos/sales/{id}/receipt:
+    get:
+      tags:
+        - pos
+      summary: Get receipt data
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Receipt data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+
+  /pos/payments:
+    post:
+      tags:
+        - pos
+      summary: Record payment(s) for a sale
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecordPaymentRequest'
+      responses:
+        '200':
+          description: Payments recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sale'
+
+  /pos/summary:
+    get:
+      tags:
+        - pos
+      summary: Get daily summary (X-report)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+        - name: location_id
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Daily summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailySummary'
+
+  /pos/close-day:
+    post:
+      tags:
+        - pos
+      summary: End-of-day closeout (Z-report)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloseDayRequest'
+      responses:
+        '200':
+          description: Day closed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailySummary'
+
+components:
+  schemas:
+    Sale:
+      type: object
+      properties:
+        id:
+          type: string
+        location_id:
+          type: string
+        patient_id:
+          type: string
+        patient_name:
+          type: string
+        prescription_id:
+          type: string
+        sale_type:
+          type: string
+          enum:
+            - otc
+            - prescription
+        status:
+          type: string
+          enum:
+            - active
+            - held
+            - completed
+            - voided
+            - refunded
+        subtotal:
+          type: number
+          format: float
+        tax_total:
+          type: number
+          format: float
+        discount_total:
+          type: number
+          format: float
+        grand_total:
+          type: number
+          format: float
+        paid_amount:
+          type: number
+          format: float
+        change_amount:
+          type: number
+          format: float
+        notes:
+          type: string
+        created_by:
+          type: string
+        voided_by:
+          type: string
+        voided_at:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SaleItem'
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+
+    SaleItem:
+      type: object
+      properties:
+        id:
+          type: string
+        product_id:
+          type: string
+        product_name:
+          type: string
+        quantity:
+          type: integer
+        unit_price:
+          type: number
+          format: float
+        discount:
+          type: number
+          format: float
+        line_total:
+          type: number
+          format: float
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+        sale_id:
+          type: string
+        method:
+          type: string
+          enum:
+            - cash
+            - card
+            - mobile_money
+            - insurance
+            - other
+        amount:
+          type: number
+          format: float
+        reference:
+          type: string
+
+    CreateSaleRequest:
+      type: object
+      required:
+        - location_id
+        - items
+      properties:
+        location_id:
+          type: string
+        patient_id:
+          type: string
+        prescription_id:
+          type: string
+        sale_type:
+          type: string
+          default: otc
+        notes:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateSaleItem'
+
+    CreateSaleItem:
+      type: object
+      required:
+        - product_id
+        - quantity
+        - unit_price
+      properties:
+        product_id:
+          type: string
+        quantity:
+          type: integer
+        unit_price:
+          type: number
+          format: float
+        discount:
+          type: number
+          format: float
+
+    UpdateSaleRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - held
+            - voided
+            - refunded
+        notes:
+          type: string
+
+    RecordPaymentRequest:
+      type: object
+      required:
+        - sale_id
+        - payments
+      properties:
+        sale_id:
+          type: string
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentInput'
+
+    PaymentInput:
+      type: object
+      required:
+        - method
+        - amount
+      properties:
+        method:
+          type: string
+          enum:
+            - cash
+            - card
+            - mobile_money
+            - insurance
+            - other
+        amount:
+          type: number
+          format: float
+        reference:
+          type: string
+
+    SaleListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sale'
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+
+    Receipt:
+      type: object
+      properties:
+        sale_number:
+          type: string
+        date:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              qty:
+                type: integer
+              price:
+                type: number
+              total:
+                type: number
+        subtotal:
+          type: number
+        tax:
+          type: number
+        discount:
+          type: number
+        grand_total:
+          type: number
+        paid:
+          type: number
+        change:
+          type: number
+        payments:
+          type: array
+          items:
+            type: string
+
+    DailySummary:
+      type: object
+      properties:
+        date:
+          type: string
+        total_sales:
+          type: integer
+        total_revenue:
+          type: number
+        total_tax:
+          type: number
+        total_discounts:
+          type: number
+        by_method:
+          type: object
+          additionalProperties:
+            type: number
+        is_closed:
+          type: boolean
+        closed_by:
+          type: string
+        closed_at:
+          type: string
+
+    CloseDayRequest:
+      type: object
+      required:
+        - date
+        - location_id
+      properties:
+        date:
+          type: string
+        location_id:
+          type: string
+        notes:
+          type: string
+
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
