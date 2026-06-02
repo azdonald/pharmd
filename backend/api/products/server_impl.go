@@ -2,6 +2,7 @@ package products
 
 import (
 	"database/sql"
+	"encoding/csv"
 	"encoding/json"
 	"net/http"
 
@@ -195,6 +196,45 @@ func (s *ServerImpl) PostProductsBarcodeLookup(w http.ResponseWriter, r *http.Re
 	utils.WriteResponse(ctx, w, productToResponse(*p, createdAt, updatedAt), http.StatusOK)
 }
 
+func (s *ServerImpl) PostProductsImport(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	orgID := ctx.Value("organisation_id").(string)
+
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		return
+	}
+
+	file, _, err := r.FormFile("file")
+	if err != nil {
+		http.Error(w, "Missing file field", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
+	if err != nil {
+		http.Error(w, "Failed to parse CSV: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	imported, skipped, errors := s.productManager.ImportProductsCSV(ctx, orgID, records)
+
+	resp := map[string]interface{}{
+		"imported": imported,
+		"skipped":  skipped,
+		"errors":   errors,
+	}
+
+	status := http.StatusOK
+	if len(errors) > 0 {
+		status = http.StatusBadRequest
+	}
+
+	utils.WriteResponse(ctx, w, resp, status)
+}
+
 func (s *ServerImpl) GetProductsIdSubstitutes(w http.ResponseWriter, r *http.Request, id string) {
 	ctx := r.Context()
 
@@ -292,5 +332,6 @@ func (wrapper *ServerInterfaceWrapper) RegisterProductsRoutes(r *chi.Mux) http.H
 	r.With(middleware.RequirePermission(utils.PermProductsCreate)).Post("/products/{id}/substitutes", wrapper.PostProductsIdSubstitutes)
 	r.With(middleware.RequirePermission(utils.PermProductsDelete)).Delete("/products/{id}/substitutes", wrapper.DeleteProductsIdSubstitutes)
 	r.With(middleware.RequirePermission(utils.PermProductsRead)).Post("/products/barcode-lookup", wrapper.PostProductsBarcodeLookup)
+	r.With(middleware.RequirePermission(utils.PermProductsCreate)).Post("/products/import", wrapper.PostProductsImport)
 	return r
 }

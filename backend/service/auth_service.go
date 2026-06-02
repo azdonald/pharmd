@@ -12,6 +12,7 @@ type AuthServiceManager interface {
 	Login(ctx context.Context, email, password string) (*models.User, error)
 	GetUserByID(ctx context.Context, id string) (*models.User, error)
 	GetOrganisationByID(ctx context.Context, id string) (*models.Organisation, error)
+	CompleteOnboarding(ctx context.Context, orgID string) error
 	ChangePassword(ctx context.Context, userID, oldPassword, newPassword string) error
 }
 
@@ -63,6 +64,7 @@ type ProductServiceManager interface {
 	GetProductByID(ctx context.Context, id string) (*models.Product, error)
 	GetProductByBarcode(ctx context.Context, barcode string) (*models.Product, error)
 	CreateProduct(ctx context.Context, product models.Product) (*models.Product, error)
+	ImportProductsCSV(ctx context.Context, orgID string, records [][]string) (int, int, []string)
 	UpdateProduct(ctx context.Context, id string, product models.Product) (*models.Product, error)
 	DeleteProduct(ctx context.Context, id string) error
 	ListSubstitutes(ctx context.Context, productID string) ([]models.GenericSubstitution, error)

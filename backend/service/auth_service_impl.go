@@ -107,6 +107,10 @@ func (s *AuthService) GetOrganisationByID(ctx context.Context, id string) (*mode
 	return s.authRepo.GetOrganisationByID(ctx, id)
 }
 
+func (s *AuthService) CompleteOnboarding(ctx context.Context, orgID string) error {
+	return s.authRepo.UpdateOrganisationOnboarding(ctx, orgID)
+}
+
 func (s *AuthService) ChangePassword(ctx context.Context, userID, oldPassword, newPassword string) error {
 	user, err := s.authRepo.GetUserByID(ctx, userID)
 	if err != nil {

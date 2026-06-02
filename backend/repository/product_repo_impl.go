@@ -127,6 +127,41 @@ func (r *ProductRepoImpl) CreateProduct(ctx context.Context, product models.Prod
 	return err
 }
 
+func (r *ProductRepoImpl) BulkCreateProducts(ctx context.Context, products []models.Product) error {
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	stmt, err := tx.PrepareContext(ctx,
+		`INSERT INTO products (id, organisation_id, name, description, category_id, classification,
+		                       brand_name, generic_name, manufacturer, barcode, ndc,
+		                       unit_of_measure, strength, form, reorder_level,
+		                       is_active, created_at, updated_at)
+		 VALUES (?, ?, ?, ?, NULLIF(?, ''), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+	)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	for _, p := range products {
+		_, err := stmt.ExecContext(ctx,
+			p.ID, p.OrganisationID, p.Name, p.Description,
+			p.CategoryID, p.Classification, p.BrandName,
+			p.GenericName, p.Manufacturer, p.Barcode, p.NDC,
+			p.UnitOfMeasure, p.Strength, p.Form, p.ReorderLevel,
+			p.IsActive, p.CreatedAt, p.UpdatedAt,
+		)
+		if err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
+}
+
 func (r *ProductRepoImpl) UpdateProduct(ctx context.Context, id string, product models.Product) error {
 	orgID := ctx.Value("organisation_id").(string)
 	query := "UPDATE products SET updated_at = ?"

@@ -215,6 +215,40 @@ paths:
         '404':
           description: Product not found
 
+  /products/import:
+    post:
+      tags:
+        - products
+      summary: Bulk import products from CSV
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Import result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  imported:
+                    type: integer
+                  skipped:
+                    type: integer
+                  errors:
+                    type: array
+                    items:
+                      type: string
+
 components:
   securitySchemes:
     bearerAuth:

@@ -62,12 +62,20 @@ func (r *AuthRepoImpl) GetUserByID(ctx context.Context, id string) (*models.User
 func (r *AuthRepoImpl) GetOrganisationByID(ctx context.Context, id string) (*models.Organisation, error) {
 	org := &models.Organisation{}
 	err := r.db.QueryRowContext(ctx,
-		"SELECT id, name, created_at, updated_at FROM organisations WHERE id = ? AND deleted_at IS NULL", id,
-	).Scan(&org.ID, &org.Name, &org.CreatedAt, &org.UpdatedAt)
+		"SELECT id, name, onboarding_completed, created_at, updated_at FROM organisations WHERE id = ? AND deleted_at IS NULL", id,
+	).Scan(&org.ID, &org.Name, &org.OnboardingCompleted, &org.CreatedAt, &org.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
 	return org, nil
+}
+
+func (r *AuthRepoImpl) UpdateOrganisationOnboarding(ctx context.Context, orgID string) error {
+	_, err := r.db.ExecContext(ctx,
+		"UPDATE organisations SET onboarding_completed = 1, updated_at = NOW() WHERE id = ?",
+		orgID,
+	)
+	return err
 }
 
 func (r *AuthRepoImpl) UpdatePassword(ctx context.Context, userID, hashedPassword string) error {

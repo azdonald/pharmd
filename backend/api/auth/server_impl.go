@@ -59,11 +59,13 @@ func (s serverImpl) PostAuthLogin(w http.ResponseWriter, r *http.Request) {
 		ExpiresIn:    &expiresIn,
 		RefreshToken: &refreshToken,
 		User: &User{
-			FirstName:         &user.FirstName,
-			LastName:          &user.LastName,
-			Id:                &user.ID,
-			Email:             &user.Email,
-			OrganisationName:  &org.Name,
+			FirstName:           &user.FirstName,
+			LastName:            &user.LastName,
+			Id:                  &user.ID,
+			Email:               &user.Email,
+			OrganisationName:    &org.Name,
+			OrganisationId:      &org.ID,
+			OnboardingCompleted: &org.OnboardingCompleted,
 		},
 	}
 
@@ -119,11 +121,13 @@ func (s serverImpl) PostAuthRefresh(w http.ResponseWriter, r *http.Request) {
 		ExpiresIn:    &expiresIn,
 		RefreshToken: &newRefreshToken,
 		User: &User{
-			FirstName:         &user.FirstName,
-			LastName:          &user.LastName,
-			Id:                &user.ID,
-			Email:             &user.Email,
-			OrganisationName:  &org.Name,
+			FirstName:           &user.FirstName,
+			LastName:            &user.LastName,
+			Id:                  &user.ID,
+			Email:               &user.Email,
+			OrganisationName:    &org.Name,
+			OrganisationId:      &org.ID,
+			OnboardingCompleted: &org.OnboardingCompleted,
 		},
 	}
 
@@ -182,11 +186,13 @@ func (s serverImpl) PostAuthRegister(w http.ResponseWriter, r *http.Request) {
 		ExpiresIn:    &expiresIn,
 		RefreshToken: &refreshToken,
 		User: &User{
-			FirstName:         &u.FirstName,
-			LastName:          &u.LastName,
-			Id:                &u.ID,
-			Email:             &u.Email,
-			OrganisationName:  &orgData.Name,
+			FirstName:           &u.FirstName,
+			LastName:            &u.LastName,
+			Id:                  &u.ID,
+			Email:               &u.Email,
+			OrganisationName:    &orgData.Name,
+			OrganisationId:      &orgData.ID,
+			OnboardingCompleted: &orgData.OnboardingCompleted,
 		},
 	}
 
@@ -213,11 +219,38 @@ func (s serverImpl) PutAuthChangePassword(w http.ResponseWriter, r *http.Request
 	utils.WriteResponse(ctx, w, nil, http.StatusOK)
 }
 
+func (s serverImpl) GetOnboardingStatus(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	orgID := ctx.Value("organisation_id").(string)
+
+	org, err := s.authManager.GetOrganisationByID(ctx, orgID)
+	if err != nil {
+		http.Error(w, "Failed to fetch org", http.StatusInternalServerError)
+		return
+	}
+
+	utils.WriteResponse(ctx, w, map[string]bool{"onboarding_completed": org.OnboardingCompleted}, http.StatusOK)
+}
+
+func (s serverImpl) PutOnboardingComplete(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	orgID := ctx.Value("organisation_id").(string)
+
+	if err := s.authManager.CompleteOnboarding(ctx, orgID); err != nil {
+		http.Error(w, "Failed to complete onboarding", http.StatusInternalServerError)
+		return
+	}
+
+	utils.WriteResponse(ctx, w, map[string]bool{"onboarding_completed": true}, http.StatusOK)
+}
+
 func (wrapper *ServerInterfaceWrapper) RegisterAuthRoutes(r *chi.Mux) http.Handler {
 	r.Post("/v1/register", wrapper.PostAuthRegister)
 	r.Post("/v1/login", wrapper.PostAuthLogin)
 	r.Post("/v1/logout", wrapper.PostAuthLogout)
 	r.Post("/v1/refresh", wrapper.PostAuthRefresh)
 	r.Put("/v1/change-password", wrapper.PutAuthChangePassword)
+	r.Get("/v1/onboarding/status", wrapper.GetOnboardingStatus)
+	r.Put("/v1/onboarding/complete", wrapper.PutOnboardingComplete)
 	return r
 }

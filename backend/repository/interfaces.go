@@ -12,6 +12,7 @@ type AuthRepository interface {
 	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
 	GetUserByID(ctx context.Context, id string) (*models.User, error)
 	GetOrganisationByID(ctx context.Context, id string) (*models.Organisation, error)
+	UpdateOrganisationOnboarding(ctx context.Context, orgID string) error
 	UpdatePassword(ctx context.Context, userID, hashedPassword string) error
 }
 
@@ -63,6 +64,7 @@ type ProductRepository interface {
 	GetProductByID(ctx context.Context, id string) (*models.Product, error)
 	GetProductByBarcode(ctx context.Context, barcode string) (*models.Product, error)
 	CreateProduct(ctx context.Context, product models.Product) error
+	BulkCreateProducts(ctx context.Context, products []models.Product) error
 	UpdateProduct(ctx context.Context, id string, product models.Product) error
 	DeleteProduct(ctx context.Context, id string) error
 	ListSubstitutes(ctx context.Context, productID string) ([]models.GenericSubstitution, error)
