@@ -89,7 +89,7 @@ export default function PatientDetail() {
     <div>
       <div className="page-header">
         <h1>{patient.first_name} {patient.last_name}</h1>
-        <div>
+        <div style={{ display: "flex", gap: 8 }}>
           <Link to={`/patients/${id}/edit`} className="btn">Edit</Link>
           <button onClick={handleDelete} className="btn btn-danger">Deactivate</button>
         </div>
@@ -111,15 +111,21 @@ export default function PatientDetail() {
       </table>
 
       <h2 style={{ marginTop: 32 }}>Allergies</h2>
-      <form onSubmit={handleAddAllergy} className="search-bar" style={{ marginBottom: 12 }}>
-        <input value={newAllergy} onChange={e => setNewAllergy(e.target.value)} placeholder="Allergy" required />
-        <select value={newSeverity} onChange={e => setNewSeverity(e.target.value)}>
-          <option value="">Severity</option>
-          <option value="Mild">Mild</option>
-          <option value="Moderate">Moderate</option>
-          <option value="Severe">Severe</option>
-        </select>
-        <button type="submit">Add</button>
+      <form onSubmit={handleAddAllergy} style={{ display: "flex", gap: 8, marginBottom: 12, alignItems: "end" }}>
+        <label style={{ flex: 1 }}>
+          Allergy
+          <input value={newAllergy} onChange={e => setNewAllergy(e.target.value)} required />
+        </label>
+        <label>
+          Severity
+          <select value={newSeverity} onChange={e => setNewSeverity(e.target.value)}>
+            <option value="">Select...</option>
+            <option value="Mild">Mild</option>
+            <option value="Moderate">Moderate</option>
+            <option value="Severe">Severe</option>
+          </select>
+        </label>
+        <button type="submit" className="btn">Add</button>
       </form>
       {allergies.length === 0 ? <p>No allergies recorded.</p> : (
         <table>
@@ -138,9 +144,12 @@ export default function PatientDetail() {
       )}
 
       <h2 style={{ marginTop: 32 }}>Conditions</h2>
-      <form onSubmit={handleAddCondition} className="search-bar" style={{ marginBottom: 12 }}>
-        <input value={newCondition} onChange={e => setNewCondition(e.target.value)} placeholder="Condition" required />
-        <button type="submit">Add</button>
+      <form onSubmit={handleAddCondition} style={{ display: "flex", gap: 8, marginBottom: 12, alignItems: "end" }}>
+        <label style={{ flex: 1 }}>
+          Condition
+          <input value={newCondition} onChange={e => setNewCondition(e.target.value)} required />
+        </label>
+        <button type="submit" className="btn">Add</button>
       </form>
       {conditions.length === 0 ? <p>No conditions recorded.</p> : (
         <table>
