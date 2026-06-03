@@ -1,7 +1,9 @@
 import { useEffect, useState, type ReactElement } from "react";
 import { listCategories, deleteCategory, createCategory, type ProductCategory } from "../api/products";
+import { useToast } from "../context/ToastContext";
 
 export default function Categories() {
+  const { showToast } = useToast();
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState("");
@@ -25,7 +27,7 @@ export default function Categories() {
       setNewParent("");
       load();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed");
+      showToast(err instanceof Error ? err.message : "Failed", "error");
     }
   };
 
@@ -35,7 +37,7 @@ export default function Categories() {
       await deleteCategory(id);
       load();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Delete failed");
+      showToast(err instanceof Error ? err.message : "Delete failed", "error");
     }
   };
 

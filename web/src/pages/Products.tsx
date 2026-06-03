@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { listProducts, listCategories, deleteProduct, type Product, type ProductCategory } from "../api/products";
+import { useToast } from "../context/ToastContext";
 
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -9,6 +10,7 @@ export default function Products() {
   const [total, setTotal] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("query") || "");
+  const { showToast } = useToast();
 
   const page = parseInt(searchParams.get("page") || "1");
   const query = searchParams.get("query") || "";
@@ -44,7 +46,7 @@ export default function Products() {
       await deleteProduct(id);
       load();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Delete failed");
+      showToast(err instanceof Error ? err.message : "Delete failed", "error");
     }
   };
 

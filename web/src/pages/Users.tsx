@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { listUsers, deleteUser, type User } from "../api/users";
+import { useToast } from "../context/ToastContext";
 
 export default function Users() {
+  const { showToast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -19,7 +21,7 @@ export default function Users() {
       await deleteUser(id);
       load();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Delete failed");
+      showToast(err instanceof Error ? err.message : "Delete failed", "error");
     }
   };
 

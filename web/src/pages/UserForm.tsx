@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getUser, createUser, updateUser, assignUserRole } from "../api/users";
 import { listRoles, type Role } from "../api/roles";
+import { useToast } from "../context/ToastContext";
 
 export default function UserForm() {
   const { id } = useParams();
@@ -12,6 +13,7 @@ export default function UserForm() {
   const [roleId, setRoleId] = useState("");
   const [roles, setRoles] = useState<Role[]>([]);
   const [saving, setSaving] = useState(false);
+  const { showToast } = useToast();
 
   const update = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [field]: e.target.value });
@@ -29,16 +31,18 @@ export default function UserForm() {
     try {
       if (isNew) {
         const user = await createUser({ ...form, role_id: roleId || undefined });
+        showToast("User created successfully");
         navigate(`/users/${user.id}`);
       } else {
         await updateUser(id!, form);
         if (roleId) {
           await assignUserRole(id!, roleId);
         }
+        showToast("User updated successfully");
         navigate("/users");
       }
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Save failed");
+      showToast(err instanceof Error ? err.message : "Save failed", "error");
     } finally {
       setSaving(false);
     }

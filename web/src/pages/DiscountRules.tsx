@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { listDiscountRules, createDiscountRule, updateDiscountRule, deleteDiscountRule, type DiscountRule } from "../api/pricing";
+import { useToast } from "../context/ToastContext";
 
 export default function DiscountRules() {
+  const { showToast } = useToast();
   const [rules, setRules] = useState<DiscountRule[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -56,7 +58,7 @@ export default function DiscountRules() {
       resetForm();
       load();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Save failed");
+      showToast(err instanceof Error ? err.message : "Save failed", "error");
     }
   };
 
@@ -66,7 +68,7 @@ export default function DiscountRules() {
       await deleteDiscountRule(id);
       load();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Delete failed");
+      showToast(err instanceof Error ? err.message : "Delete failed", "error");
     }
   };
 

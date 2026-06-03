@@ -4,12 +4,14 @@ import { getPurchaseOrder, createPurchaseOrder, approvePurchaseOrder, rejectPurc
 import { listLocations, type Location } from "../api/locations";
 import { listSuppliers, type Supplier } from "../api/suppliers";
 import { listProducts, type Product } from "../api/products";
+import { useToast } from "../context/ToastContext";
 
 export default function PurchaseOrderDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [po, setPo] = useState<PurchaseOrder | null>(null);
   const [loading, setLoading] = useState(true);
+  const { showToast } = useToast();
   const [locations, setLocations] = useState<Location[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -30,7 +32,7 @@ export default function PurchaseOrderDetail() {
         setSuppliers(supRes.data);
         setProducts(prodRes.data);
       })
-      .catch(err => { console.error(err); alert("Failed to load purchase order"); })
+      .catch(err => { console.error(err); showToast("Failed to load purchase order", "error"); })
       .finally(() => setLoading(false));
   };
 
@@ -42,7 +44,7 @@ export default function PurchaseOrderDetail() {
       const updated = await approvePurchaseOrder(id);
       setPo(updated);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Approve failed");
+      showToast(err instanceof Error ? err.message : "Approve failed", "error");
     }
   };
 
@@ -52,7 +54,7 @@ export default function PurchaseOrderDetail() {
       const updated = await rejectPurchaseOrder(id);
       setPo(updated);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Reject failed");
+      showToast(err instanceof Error ? err.message : "Reject failed", "error");
     }
   };
 
@@ -66,12 +68,12 @@ export default function PurchaseOrderDetail() {
     if (!id) return;
     try {
       const items = receiveItems.filter(i => i.received > 0).map(i => ({ item_id: i.itemId, quantity_received: i.received }));
-      if (items.length === 0) { alert("At least one item with quantity > 0"); return; }
+      if (items.length === 0) { showToast("At least one item with quantity > 0", "error"); return; }
       const updated = await receiveGoods(id, { items, notes: receiveNote || undefined });
       setPo(updated);
       setShowReceive(false);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Receive failed");
+      showToast(err instanceof Error ? err.message : "Receive failed", "error");
     }
   };
 
@@ -186,6 +188,7 @@ export default function PurchaseOrderDetail() {
 // Inline PO creation form used by PurchaseOrderForm
 export function PurchaseOrderForm() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [locations, setLocations] = useState<Location[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -225,11 +228,11 @@ export function PurchaseOrderForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!supplierId || !locationId || items.length === 0) {
-      alert("Please fill all required fields and add at least one item");
+      showToast("Please fill all required fields and add at least one item", "error");
       return;
     }
     if (items.some(i => !i.product_id)) {
-      alert("Please select a product for each item");
+      showToast("Please select a product for each item", "error");
       return;
     }
     try {
@@ -242,7 +245,7 @@ export function PurchaseOrderForm() {
       });
       navigate(`/purchases/${created.id}`);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Create failed");
+      showToast(err instanceof Error ? err.message : "Create failed", "error");
     }
   };
 

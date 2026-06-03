@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getSupplier, createSupplier, updateSupplier } from "../api/suppliers";
+import { useToast } from "../context/ToastContext";
 
 export default function SupplierForm() {
   const { id } = useParams();
@@ -13,6 +14,7 @@ export default function SupplierForm() {
     payment_terms: "", notes: "",
   });
   const [saving, setSaving] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (!isNew && id) {
@@ -34,12 +36,14 @@ export default function SupplierForm() {
     try {
       if (isNew) {
         await createSupplier(form);
+        showToast("Supplier created successfully");
       } else {
         await updateSupplier(id!, form);
+        showToast("Supplier updated successfully");
       }
       navigate("/suppliers");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Save failed");
+      showToast(err instanceof Error ? err.message : "Save failed", "error");
     } finally {
       setSaving(false);
     }

@@ -6,6 +6,7 @@ import {
   listPatientConditions, addPatientCondition,
   type Patient, type PatientAllergy, type PatientCondition,
 } from "../api/patients";
+import { useToast } from "../context/ToastContext";
 
 export default function PatientDetail() {
   const { id } = useParams();
@@ -17,6 +18,7 @@ export default function PatientDetail() {
   const [newSeverity, setNewSeverity] = useState("");
   const [newCondition, setNewCondition] = useState("");
   const [loading, setLoading] = useState(true);
+  const { showToast } = useToast();
 
   const load = () => {
     if (!id) return;
@@ -40,7 +42,7 @@ export default function PatientDetail() {
       await deletePatient(id!);
       navigate("/patients");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Delete failed");
+      showToast(err instanceof Error ? err.message : "Delete failed", "error");
     }
   };
 
@@ -54,7 +56,7 @@ export default function PatientDetail() {
       const a = await listPatientAllergies(id!);
       setAllergies(a);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed");
+      showToast(err instanceof Error ? err.message : "Failed", "error");
     }
   };
 
@@ -63,7 +65,7 @@ export default function PatientDetail() {
       await removePatientAllergy(id!, allergyId);
       setAllergies(allergies.filter(a => a.id !== allergyId));
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed");
+      showToast(err instanceof Error ? err.message : "Failed", "error");
     }
   };
 
@@ -76,7 +78,7 @@ export default function PatientDetail() {
       const c = await listPatientConditions(id!);
       setConditions(c);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed");
+      showToast(err instanceof Error ? err.message : "Failed", "error");
     }
   };
 

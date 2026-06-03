@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { listRoles, deleteRole, type Role } from "../api/roles";
+import { useToast } from "../context/ToastContext";
 
 export default function Roles() {
+  const { showToast } = useToast();
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -19,7 +21,7 @@ export default function Roles() {
       await deleteRole(id);
       load();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Delete failed");
+      showToast(err instanceof Error ? err.message : "Delete failed", "error");
     }
   };
 

@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { listSales, updateSale, getReceipt, type Sale } from "../api/pos";
+import { useToast } from "../context/ToastContext";
 
 export default function SalesHistory() {
+  const { showToast } = useToast();
   const [sales, setSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -23,21 +25,21 @@ export default function SalesHistory() {
   const handleVoid = async (id: string) => {
     if (!confirm("Void this sale?")) return;
     try { await updateSale(id, { status: "voided" }); load(); }
-    catch (err) { alert(err instanceof Error ? err.message : "Void failed"); }
+    catch (err) { showToast(err instanceof Error ? err.message : "Void failed", "error"); }
   };
 
   const handleRefund = async (id: string) => {
     if (!confirm("Refund this sale?")) return;
     try { await updateSale(id, { status: "refunded" }); load(); }
-    catch (err) { alert(err instanceof Error ? err.message : "Refund failed"); }
+    catch (err) { showToast(err instanceof Error ? err.message : "Refund failed", "error"); }
   };
 
   const handleReceipt = async (id: string) => {
     try {
       const receipt = await getReceipt(id);
-      alert(JSON.stringify(receipt, null, 2));
+      showToast(JSON.stringify(receipt, null, 2).slice(0, 200));
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Receipt failed");
+      showToast(err instanceof Error ? err.message : "Receipt failed", "error");
     }
   };
 

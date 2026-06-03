@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getLocation, createLocation, updateLocation } from "../api/locations";
+import { useToast } from "../context/ToastContext";
 
 export default function LocationForm() {
   const { id } = useParams();
@@ -9,6 +10,7 @@ export default function LocationForm() {
 
   const [form, setForm] = useState({ name: "", address: "", city: "", state: "", country: "", phone: "", email: "", tax_rate: 0, timezone: "UTC" });
   const [saving, setSaving] = useState(false);
+  const { showToast } = useToast();
 
   const update = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [field]: e.target.value });
@@ -29,12 +31,14 @@ export default function LocationForm() {
     try {
       if (isNew) {
         await createLocation(form);
+        showToast("Location created successfully");
       } else {
         await updateLocation(id!, form);
+        showToast("Location updated successfully");
       }
       navigate("/locations");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Save failed");
+      showToast(err instanceof Error ? err.message : "Save failed", "error");
     } finally {
       setSaving(false);
     }

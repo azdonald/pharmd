@@ -5,6 +5,7 @@ import { listPatients, type Patient } from "../api/patients";
 import { listLocations, type Location } from "../api/locations";
 import { listProducts, type Product } from "../api/products";
 import { listPrescribers, type Prescriber } from "../api/prescribers";
+import { useToast } from "../context/ToastContext";
 
 export default function PrescriptionDetail() {
   const { id } = useParams<{ id: string }>();
@@ -14,6 +15,7 @@ export default function PrescriptionDetail() {
   const [prescribers, setPrescribers] = useState<Prescriber[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const { showToast } = useToast();
 
   const load = () => {
     if (!id) return;
@@ -36,7 +38,7 @@ export default function PrescriptionDetail() {
       const updated = await recordRefill(id, itemId);
       setRx(updated);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Refill failed");
+      showToast(err instanceof Error ? err.message : "Refill failed", "error");
     }
   };
 
@@ -46,7 +48,7 @@ export default function PrescriptionDetail() {
       const updated = await updatePrescription(id, { status });
       setRx(updated);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Update failed");
+      showToast(err instanceof Error ? err.message : "Update failed", "error");
     }
   };
 
@@ -56,7 +58,7 @@ export default function PrescriptionDetail() {
       await deletePrescription(id);
       navigate("/prescriptions");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Delete failed");
+      showToast(err instanceof Error ? err.message : "Delete failed", "error");
     }
   };
 
@@ -122,6 +124,7 @@ export default function PrescriptionDetail() {
 
 export function PrescriptionForm() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [prescribers, setPrescribers] = useState<Prescriber[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
@@ -167,7 +170,7 @@ export function PrescriptionForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!patientId || !prescriberId || !locationId || items.length === 0) return;
-    if (items.some(i => !i.product_id || !i.dosage || !i.frequency)) { alert("Each item needs product, dosage and frequency"); return; }
+    if (items.some(i => !i.product_id || !i.dosage || !i.frequency)) { showToast("Each item needs product, dosage and frequency", "error"); return; }
     try {
       const created = await createPrescription({
         patient_id: patientId,
@@ -181,7 +184,7 @@ export function PrescriptionForm() {
       });
       navigate(`/prescriptions/${created.id}`);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Create failed");
+      showToast(err instanceof Error ? err.message : "Create failed", "error");
     }
   };
 

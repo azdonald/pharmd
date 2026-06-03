@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { listPatients, deletePatient, type Patient } from "../api/patients";
+import { useToast } from "../context/ToastContext";
 
 export default function Patients() {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -8,6 +9,7 @@ export default function Patients() {
   const [total, setTotal] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("query") || "");
+  const { showToast } = useToast();
 
   const page = parseInt(searchParams.get("page") || "1");
   const query = searchParams.get("query") || "";
@@ -33,7 +35,7 @@ export default function Patients() {
       await deletePatient(id);
       load();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Delete failed");
+      showToast(err instanceof Error ? err.message : "Delete failed", "error");
     }
   };
 

@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { listPrices, upsertPrice, deletePrice, type ProductPrice } from "../api/pricing";
 import { listLocations, type Location } from "../api/locations";
 import { listProducts, type Product } from "../api/products";
+import { useToast } from "../context/ToastContext";
 
 export default function Pricing() {
+  const { showToast } = useToast();
   const [prices, setPrices] = useState<ProductPrice[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -47,7 +49,7 @@ export default function Pricing() {
       setFormSelling("");
       load();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to save price");
+      showToast(err instanceof Error ? err.message : "Failed to save price", "error");
     }
   };
 
@@ -57,7 +59,7 @@ export default function Pricing() {
       await deletePrice(id);
       load();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Delete failed");
+      showToast(err instanceof Error ? err.message : "Delete failed", "error");
     }
   };
 

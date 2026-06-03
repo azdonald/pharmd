@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getSupplier, listSupplierProducts, setSupplierProducts, type Supplier, type SupplierProduct } from "../api/suppliers";
 import { listProducts, type Product } from "../api/products";
+import { useToast } from "../context/ToastContext";
 
 export default function SupplierDetail() {
   const { id } = useParams();
@@ -10,6 +11,7 @@ export default function SupplierDetail() {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const { showToast } = useToast();
   const [newPrices, setNewPrices] = useState<Record<string, { product_id: string; unit_price: string; min_order_qty: string; lead_time_days: string; notes: string }>>({});
 
   const load = () => {
@@ -44,7 +46,7 @@ export default function SupplierDetail() {
       const updated = await listSupplierProducts(id!);
       setProducts(updated);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Save failed");
+      showToast(err instanceof Error ? err.message : "Save failed", "error");
     }
   };
 

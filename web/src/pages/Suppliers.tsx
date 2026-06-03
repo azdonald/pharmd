@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { listSuppliers, deleteSupplier, type Supplier } from "../api/suppliers";
+import { useToast } from "../context/ToastContext";
 
 export default function Suppliers() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -8,6 +9,7 @@ export default function Suppliers() {
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const { showToast } = useToast();
 
   const load = () => {
     setLoading(true);
@@ -25,7 +27,7 @@ export default function Suppliers() {
       await deleteSupplier(id);
       load();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Delete failed");
+      showToast(err instanceof Error ? err.message : "Delete failed", "error");
     }
   };
 

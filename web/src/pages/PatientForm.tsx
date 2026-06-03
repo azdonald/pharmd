@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getPatient, createPatient, updatePatient } from "../api/patients";
+import { useToast } from "../context/ToastContext";
 
 export default function PatientForm() {
   const { id } = useParams();
@@ -14,6 +15,7 @@ export default function PatientForm() {
     emergency_contact_name: "", emergency_contact_phone: "",
   });
   const [saving, setSaving] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (!isNew && id && id !== "new") {
@@ -36,13 +38,15 @@ export default function PatientForm() {
     try {
       if (isNew) {
         const patient = await createPatient(form);
+        showToast("Patient created successfully");
         navigate(`/patients/${patient.id}`);
       } else {
         await updatePatient(id!, form);
+        showToast("Patient updated successfully");
         navigate(`/patients/${id}`);
       }
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Save failed");
+      showToast(err instanceof Error ? err.message : "Save failed", "error");
     } finally {
       setSaving(false);
     }

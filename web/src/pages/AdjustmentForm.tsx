@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { createAdjustment } from "../api/inventory";
 import { listLocations, type Location } from "../api/locations";
 import { listProducts, type Product } from "../api/products";
+import { useToast } from "../context/ToastContext";
 
 const MOVEMENT_TYPES = ["waste", "damage", "transfer_out", "theft", "correction"];
 
@@ -15,6 +16,7 @@ export default function AdjustmentForm() {
     movement_type: "waste", notes: "",
   });
   const [saving, setSaving] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     Promise.all([
@@ -34,9 +36,10 @@ export default function AdjustmentForm() {
     setSaving(true);
     try {
       await createAdjustment(form);
+      showToast("Adjustment recorded successfully");
       navigate("/inventory");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Save failed");
+      showToast(err instanceof Error ? err.message : "Save failed", "error");
     } finally {
       setSaving(false);
     }

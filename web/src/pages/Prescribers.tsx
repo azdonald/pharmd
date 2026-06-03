@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { listPrescribers, createPrescriber, updatePrescriber, deletePrescriber, type Prescriber } from "../api/prescribers";
+import { useToast } from "../context/ToastContext";
 
 export default function Prescribers() {
+  const { showToast } = useToast();
   const [prescribers, setPrescribers] = useState<Prescriber[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -47,7 +49,7 @@ export default function Prescribers() {
       resetForm();
       load();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Save failed");
+      showToast(err instanceof Error ? err.message : "Save failed", "error");
     }
   };
 
@@ -57,7 +59,7 @@ export default function Prescribers() {
       await deletePrescriber(id);
       load();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Delete failed");
+      showToast(err instanceof Error ? err.message : "Delete failed", "error");
     }
   };
 

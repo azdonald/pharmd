@@ -3,6 +3,7 @@ import { listProducts, type Product } from "../api/products";
 import { listLocations, type Location } from "../api/locations";
 import { listPatients, type Patient } from "../api/patients";
 import { createSale, recordPayment, getReceipt, getDailySummary, closeDay, type Sale } from "../api/pos";
+import { useToast } from "../context/ToastContext";
 
 export default function POS() {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -18,6 +19,7 @@ export default function POS() {
   const [cardAmount, setCardAmount] = useState("");
   const [mobileAmount, setMobileAmount] = useState("");
   const [mobileRef, setMobileRef] = useState("");
+  const { showToast } = useToast();
   const [lastSale, setLastSale] = useState<Sale | null>(null);
   const [summary, setSummary] = useState<any>(null);
   const [summaryDate, setSummaryDate] = useState(new Date().toISOString().split("T")[0]);
@@ -62,8 +64,8 @@ export default function POS() {
   const grandTotal = subtotal - discountTotal;
 
   const handleCheckout = async () => {
-    if (!selectedLoc || cart.length === 0) { alert("Select a location and add items"); return; }
-    if (cart.some(c => c.price <= 0)) { alert("Set price for all items"); return; }
+    if (!selectedLoc || cart.length === 0) { showToast("Select a location and add items", "error"); return; }
+    if (cart.some(c => c.price <= 0)) { showToast("Set price for all items", "error"); return; }
     try {
       const sale = await createSale({
         location_id: selectedLoc,
@@ -75,7 +77,7 @@ export default function POS() {
       setLastSale(sale);
       setShowPayment(true);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Checkout failed");
+      showToast(err instanceof Error ? err.message : "Checkout failed", "error");
     }
   };
 
@@ -85,7 +87,7 @@ export default function POS() {
     if (Number(cashAmount) > 0) payments.push({ method: "cash", amount: Number(cashAmount) });
     if (Number(cardAmount) > 0) payments.push({ method: "card", amount: Number(cardAmount) });
     if (Number(mobileAmount) > 0) payments.push({ method: "mobile_money", amount: Number(mobileAmount), reference: mobileRef || undefined });
-    if (payments.length === 0) { alert("Enter at least one payment"); return; }
+    if (payments.length === 0) { showToast("Enter at least one payment", "error"); return; }
     try {
       await recordPayment(lastSale.id, payments);
       setCart([]);
@@ -96,37 +98,37 @@ export default function POS() {
       setMobileAmount("");
       setMobileRef("");
       setSaleNotes("");
-      alert("Sale completed!");
+      showToast("Sale completed!");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Payment failed");
+      showToast(err instanceof Error ? err.message : "Payment failed", "error");
     }
   };
 
   const handleReceipt = async () => {
     if (!lastSale) return;
     const receipt = await getReceipt(lastSale.id);
-    alert(JSON.stringify(receipt, null, 2));
+    showToast(JSON.stringify(receipt, null, 2).slice(0, 200));
   };
 
   const loadSummary = async () => {
-    if (!selectedLoc) { alert("Select a location"); return; }
+    if (!selectedLoc) { showToast("Select a location", "error"); return; }
     try {
       const s = await getDailySummary(summaryDate, selectedLoc);
       setSummary(s);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to load summary");
+      showToast(err instanceof Error ? err.message : "Failed to load summary", "error");
     }
   };
 
   const handleCloseDay = async () => {
-    if (!selectedLoc || !summaryDate) { alert("Select location and date"); return; }
+    if (!selectedLoc || !summaryDate) { showToast("Select location and date", "error"); return; }
     if (!confirm("Close day for " + summaryDate + "?")) return;
     try {
       const s = await closeDay(summaryDate, selectedLoc);
       setSummary(s);
-      alert("Day closed!");
+      showToast("Day closed!");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Close day failed");
+      showToast(err instanceof Error ? err.message : "Close day failed", "error");
     }
   };
 

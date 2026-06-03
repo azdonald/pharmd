@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getRole, createRole, updateRole, getRolePermissions, setRolePermissions, type Role } from "../api/roles";
 import { listPermissions, type Permission } from "../api/permissions";
+import { useToast } from "../context/ToastContext";
 
 export default function RoleForm() {
   const { id } = useParams();
@@ -13,6 +14,7 @@ export default function RoleForm() {
   const [selectedPerms, setSelectedPerms] = useState<string[]>([]);
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [saving, setSaving] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     listPermissions().then(res => setPermissions(res.data)).catch(console.error);
@@ -39,9 +41,10 @@ export default function RoleForm() {
         role = await updateRole(id!, { name: name || undefined, description: description || undefined });
         await setRolePermissions(id!, selectedPerms);
       }
+      showToast(isNew ? "Role created successfully" : "Role updated successfully");
       navigate(`/roles/${role.id}`);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Save failed");
+      showToast(err instanceof Error ? err.message : "Save failed", "error");
     } finally {
       setSaving(false);
     }

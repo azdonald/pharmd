@@ -5,6 +5,7 @@ import {
   listProducts, listCategories,
   type Product, type GenericSubstitution, type ProductCategory,
 } from "../api/products";
+import { useToast } from "../context/ToastContext";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -16,6 +17,7 @@ export default function ProductDetail() {
   const [newSub, setNewSub] = useState("");
   const [newSubNotes, setNewSubNotes] = useState("");
   const [loading, setLoading] = useState(true);
+  const { showToast } = useToast();
 
   const load = () => {
     if (!id) return;
@@ -44,7 +46,7 @@ export default function ProductDetail() {
       await deleteProduct(id!);
       navigate("/products");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Delete failed");
+      showToast(err instanceof Error ? err.message : "Delete failed", "error");
     }
   };
 
@@ -57,7 +59,7 @@ export default function ProductDetail() {
       setNewSubNotes("");
       setSubstitutes(await listSubstitutes(id!));
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed");
+      showToast(err instanceof Error ? err.message : "Failed", "error");
     }
   };
 
@@ -66,7 +68,7 @@ export default function ProductDetail() {
       await removeSubstitute(id!, subId);
       setSubstitutes(substitutes.filter(s => s.id !== subId));
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed");
+      showToast(err instanceof Error ? err.message : "Failed", "error");
     }
   };
 

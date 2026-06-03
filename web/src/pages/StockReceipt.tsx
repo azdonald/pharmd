@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { createBatch } from "../api/inventory";
 import { listLocations, type Location } from "../api/locations";
 import { listProducts, type Product } from "../api/products";
+import { useToast } from "../context/ToastContext";
 
 export default function StockReceipt() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function StockReceipt() {
     unit_cost: 0, selling_price: 0, manufacturing_date: "", expiry_date: "",
   });
   const [saving, setSaving] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     Promise.all([
@@ -32,9 +34,10 @@ export default function StockReceipt() {
     setSaving(true);
     try {
       await createBatch(form);
+      showToast("Stock received successfully");
       navigate("/inventory");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Save failed");
+      showToast(err instanceof Error ? err.message : "Save failed", "error");
     } finally {
       setSaving(false);
     }

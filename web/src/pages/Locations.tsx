@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { listLocations, deleteLocation, type Location } from "../api/locations";
+import { useToast } from "../context/ToastContext";
 
 export default function Locations() {
+  const { showToast } = useToast();
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -19,7 +21,7 @@ export default function Locations() {
       await deleteLocation(id);
       load();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Delete failed");
+      showToast(err instanceof Error ? err.message : "Delete failed", "error");
     }
   };
 

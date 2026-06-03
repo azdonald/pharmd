@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProduct, createProduct, updateProduct, listCategories, barcodeLookup, type ProductCategory } from "../api/products";
+import { useToast } from "../context/ToastContext";
 
 const CLASSIFICATIONS = ["OTC", "Prescription", "Controlled", "Narcotic", "Device", "Supply"];
 const FORMS = ["Tablet", "Capsule", "Syrup", "Suspension", "Injection", "Cream", "Ointment", "Drop", "Inhaler", "Spray", "Solution", "Powder"];
@@ -18,6 +19,7 @@ export default function ProductForm() {
     unit_of_measure: "", strength: "", form: "", reorder_level: 10,
   });
   const [saving, setSaving] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     listCategories().then(setCategories).catch(console.error);
@@ -60,13 +62,15 @@ export default function ProductForm() {
     try {
       if (isNew) {
         const product = await createProduct(form);
+        showToast("Product created successfully");
         navigate(`/products/${product.id}`);
       } else {
         await updateProduct(id!, form);
+        showToast("Product updated successfully");
         navigate(`/products/${id}`);
       }
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Save failed");
+      showToast(err instanceof Error ? err.message : "Save failed", "error");
     } finally {
       setSaving(false);
     }

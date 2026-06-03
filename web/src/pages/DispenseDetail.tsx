@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getDispenseRecord, createDispense, updateDispenseStatus, checkInteractions, checkAllergies, getLabelData, type DispenseRecord } from "../api/dispensing";
 import { getPrescription, type Prescription } from "../api/prescriptions";
 import { listUsers, type User } from "../api/users";
+import { useToast } from "../context/ToastContext";
 
 export default function DispenseDetail() {
   const { id } = useParams<{ id: string }>();
@@ -14,6 +15,7 @@ export default function DispenseDetail() {
   const [interactions, setInteractions] = useState<any[]>([]);
   const [allergies, setAllergies] = useState<any[]>([]);
   const [showDispense, setShowDispense] = useState(false);
+  const { showToast } = useToast();
   const [formItemId, setFormItemId] = useState("");
   const [formQty, setFormQty] = useState("1");
   const [formPharmacist, setFormPharmacist] = useState("");
@@ -49,7 +51,7 @@ export default function DispenseDetail() {
       const updated = await updateDispenseStatus(id, status);
       setDr(updated);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Status update failed");
+      showToast(err instanceof Error ? err.message : "Status update failed", "error");
     }
   };
 
@@ -68,7 +70,7 @@ export default function DispenseDetail() {
       });
       navigate(`/dispensing/${created.id}`);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Dispense failed");
+      showToast(err instanceof Error ? err.message : "Dispense failed", "error");
     }
   };
 
@@ -177,7 +179,7 @@ export default function DispenseDetail() {
         <div style={{ marginTop: 16 }}>
           <button onClick={async () => {
             const data = await getLabelData(dr.id);
-            alert(JSON.stringify(data, null, 2));
+            showToast(JSON.stringify(data, null, 2).slice(0, 200));
           }}>Print Label</button>
         </div>
       )}
