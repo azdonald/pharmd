@@ -41,7 +41,7 @@ export default function LocationForm() {
   };
 
   return (
-    <div>
+    <div className="form-page">
       <h1>{isNew ? "New Location" : "Edit Location"}</h1>
       <form onSubmit={handleSubmit}>
         <label>Name<input value={form.name} onChange={update("name")} required /></label>

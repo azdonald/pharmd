@@ -46,13 +46,8 @@ export default function Patients() {
         <Link to="/patients/new" className="btn">New Patient</Link>
       </div>
 
-      <form onSubmit={handleSearch} style={{ display: "flex", gap: 8, marginBottom: 16, maxWidth: "100%" }}>
-        <input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Search by name, phone, or email..."
-          style={{ flex: 1 }}
-        />
+      <form onSubmit={handleSearch} className="search-bar">
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, phone, or email..." />
         <button type="submit">Search</button>
       </form>
 
@@ -70,21 +65,21 @@ export default function Patients() {
                   <td>{p.email}</td>
                   <td>{p.gender}</td>
                   <td>{p.is_active ? "Yes" : "No"}</td>
-                  <td>
-                    <Link to={`/patients/${p.id}/edit`}>Edit</Link>
-                    <button onClick={() => handleDelete(p.id)}>Deactivate</button>
-                  </td>
+                    <td>
+                      <Link to={`/patients/${p.id}/edit`} className="action-link">Edit</Link>
+                      <button onClick={() => handleDelete(p.id)} className="action-link action-link-danger">Deactivate</button>
+                    </td>
                 </tr>
               ))}
             </tbody>
           </table>
 
           {totalPages > 1 && (
-            <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
+            <div className="pagination">
               {page > 1 && (
                 <button onClick={() => setSearchParams({ query, page: String(page - 1) })}>Previous</button>
               )}
-              <span style={{ padding: "8px 0" }}>Page {page} of {totalPages}</span>
+              <span>Page {page} of {totalPages}</span>
               {page < totalPages && (
                 <button onClick={() => setSearchParams({ query, page: String(page + 1) })}>Next</button>
               )}

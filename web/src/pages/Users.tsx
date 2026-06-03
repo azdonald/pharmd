@@ -40,10 +40,10 @@ export default function Users() {
             <tr key={u.id}>
               <td>{u.first_name} {u.last_name}</td>
               <td>{u.email}</td>
-              <td>{u.is_active ? "Yes" : "No"}</td>
+              <td><span className={`badge ${u.is_active ? "badge-active" : "badge-inactive"}`}>{u.is_active ? "Active" : "Inactive"}</span></td>
               <td>
-                <Link to={`/users/${u.id}`}>Edit</Link>
-                <button onClick={() => handleDelete(u.id)}>Deactivate</button>
+                <Link to={`/users/${u.id}`} className="action-link">Edit</Link>
+                <button onClick={() => handleDelete(u.id)} className="action-link action-link-danger">Deactivate</button>
               </td>
             </tr>
           ))}

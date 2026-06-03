@@ -1,5 +1,32 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import {
+  LayoutDashboard, Users, ShieldCheck, Key, MapPin, Stethoscope,
+  Package, Tags, Warehouse, Truck, ShoppingCart, DollarSign,
+  Percent, UserCheck, FileText, Pill, CreditCard, BarChart3,
+  LogOut,
+} from "lucide-react";
+
+const navItems = [
+  { to: "/", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/users", label: "Users", icon: Users },
+  { to: "/roles", label: "Roles", icon: ShieldCheck },
+  { to: "/permissions", label: "Permissions", icon: Key },
+  { to: "/locations", label: "Locations", icon: MapPin },
+  { to: "/patients", label: "Patients", icon: Stethoscope },
+  { to: "/products", label: "Products", icon: Package },
+  { to: "/categories", label: "Categories", icon: Tags },
+  { to: "/inventory", label: "Inventory", icon: Warehouse },
+  { to: "/suppliers", label: "Suppliers", icon: Truck },
+  { to: "/purchases", label: "Purchases", icon: ShoppingCart },
+  { to: "/pricing", label: "Pricing", icon: DollarSign },
+  { to: "/discounts", label: "Discounts", icon: Percent },
+  { to: "/prescribers", label: "Prescribers", icon: UserCheck },
+  { to: "/prescriptions", label: "Prescriptions", icon: FileText },
+  { to: "/dispensing", label: "Dispensing", icon: Pill },
+  { to: "/pos", label: "POS", icon: CreditCard },
+  { to: "/sales", label: "Sales", icon: BarChart3 },
+];
 
 export function Layout() {
   const { user, logout } = useAuth();
@@ -17,29 +44,27 @@ export function Layout() {
           <h2>PharmD</h2>
         </div>
         <nav>
-          <NavLink to="/">Dashboard</NavLink>
-          <NavLink to="/users">Users</NavLink>
-          <NavLink to="/roles">Roles</NavLink>
-          <NavLink to="/permissions">Permissions</NavLink>
-          <NavLink to="/locations">Locations</NavLink>
-          <NavLink to="/patients">Patients</NavLink>
-          <NavLink to="/products">Products</NavLink>
-          <NavLink to="/categories">Categories</NavLink>
-          <NavLink to="/inventory">Inventory</NavLink>
-          <NavLink to="/suppliers">Suppliers</NavLink>
-          <NavLink to="/purchases">Purchases</NavLink>
-          <NavLink to="/pricing">Pricing</NavLink>
-          <NavLink to="/discounts">Discounts</NavLink>
-          <NavLink to="/prescribers">Prescribers</NavLink>
-          <NavLink to="/prescriptions">Prescriptions</NavLink>
-          <NavLink to="/dispensing">Dispensing</NavLink>
-          <NavLink to="/pos">POS</NavLink>
-          <NavLink to="/sales">Sales</NavLink>
+          {navItems.map(({ to, label, icon: Icon }) => (
+            <NavLink key={to} to={to} end={to === "/"}>
+              <Icon size={18} />
+              <span>{label}</span>
+            </NavLink>
+          ))}
         </nav>
         <div className="sidebar-footer">
-          <span>{user?.first_name} {user?.last_name}</span>
-          <span className="org-name">{user?.organisation_name}</span>
-          <button onClick={handleLogout}>Logout</button>
+          <div className="sidebar-user">
+            <div className="sidebar-user-avatar">
+              {user?.first_name?.[0]}{user?.last_name?.[0]}
+            </div>
+            <div>
+              <span className="sidebar-user-name">{user?.first_name} {user?.last_name}</span>
+              <span className="org-name">{user?.organisation_name}</span>
+            </div>
+          </div>
+          <button className="sidebar-logout" onClick={handleLogout}>
+            <LogOut size={16} />
+            Logout
+          </button>
         </div>
       </aside>
       <main className="main-content">

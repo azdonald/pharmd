@@ -73,7 +73,7 @@ export default function ProductForm() {
   };
 
   return (
-    <div>
+    <div className="form-page">
       <h1>{isNew ? "New Product" : "Edit Product"}</h1>
       <form onSubmit={handleSubmit}>
         <fieldset>

@@ -27,7 +27,7 @@ export default function ChangePassword() {
   };
 
   return (
-    <div>
+    <div className="form-page">
       <h1>Change Password</h1>
       {message && <p className="success">{message}</p>}
       {error && <p className="error">{error}</p>}

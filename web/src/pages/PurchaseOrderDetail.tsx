@@ -251,7 +251,7 @@ export function PurchaseOrderForm() {
       <div className="page-header">
         <h1>New Purchase Order</h1>
       </div>
-
+      <div className="form-page">
       <form onSubmit={handleSubmit}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
           <div>
@@ -310,6 +310,7 @@ export function PurchaseOrderForm() {
           <button type="button" onClick={() => navigate("/purchases")}>Cancel</button>
         </div>
       </form>
+      </div>
     </div>
   );
 }

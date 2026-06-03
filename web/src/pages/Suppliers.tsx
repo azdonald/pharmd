@@ -38,7 +38,10 @@ export default function Suppliers() {
         <Link to="/suppliers/new" className="btn">New Supplier</Link>
       </div>
 
-      <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Search suppliers..." style={{ width: "100%", marginBottom: 16 }} />
+      <form className="search-bar" style={{ marginBottom: 12 }}>
+        <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Search suppliers..." />
+        <button type="submit" onClick={e => e.preventDefault()}>Search</button>
+      </form>
 
       {loading ? <p>Loading...</p> : (
         <>
@@ -53,10 +56,10 @@ export default function Suppliers() {
                   <td>{s.contact_person || "—"}</td>
                   <td>{s.phone || "—"}</td>
                   <td>{s.email || "—"}</td>
-                  <td>{s.is_active ? "Yes" : "No"}</td>
+                  <td><span className={`badge ${s.is_active ? "badge-active" : "badge-inactive"}`}>{s.is_active ? "Active" : "Inactive"}</span></td>
                   <td>
-                    <Link to={`/suppliers/${s.id}/edit`}>Edit</Link>
-                    <button onClick={() => handleDelete(s.id)}>Delete</button>
+                    <Link to={`/suppliers/${s.id}/edit`} className="action-link">Edit</Link>
+                    <button onClick={() => handleDelete(s.id)} className="action-link action-link-danger">Delete</button>
                   </td>
                 </tr>
               ))}
@@ -64,9 +67,9 @@ export default function Suppliers() {
           </table>
 
           {totalPages > 1 && (
-            <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
+            <div className="pagination">
               {page > 1 && <button onClick={() => setPage(page - 1)}>Previous</button>}
-              <span style={{ padding: "8px 0" }}>Page {page} of {totalPages}</span>
+              <span>Page {page} of {totalPages}</span>
               {page < totalPages && <button onClick={() => setPage(page + 1)}>Next</button>}
             </div>
           )}

@@ -43,7 +43,7 @@ export default function AdjustmentForm() {
   };
 
   return (
-    <div>
+    <div className="form-page">
       <h1>Stock Adjustment</h1>
       <form onSubmit={handleSubmit}>
         <label>Product<select value={form.product_id} onChange={update("product_id")} required>

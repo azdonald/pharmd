@@ -46,7 +46,7 @@ export default function SupplierForm() {
   };
 
   return (
-    <div>
+    <div className="form-page">
       <h1>{isNew ? "New Supplier" : "Edit Supplier"}</h1>
       <form onSubmit={handleSubmit}>
         <fieldset>

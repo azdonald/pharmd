@@ -191,6 +191,7 @@ export function PrescriptionForm() {
         <h1>New Prescription</h1>
       </div>
 
+      <div className="form-page">
       <form onSubmit={handleSubmit}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
           <div>
@@ -261,6 +262,7 @@ export function PrescriptionForm() {
           <button type="button" onClick={() => navigate("/prescriptions")}>Cancel</button>
         </div>
       </form>
+      </div>
     </div>
   );
 }

@@ -57,8 +57,8 @@ export default function Products() {
         <Link to="/products/new" className="btn">New Product</Link>
       </div>
 
-      <form onSubmit={handleSearch} style={{ display: "flex", gap: 8, marginBottom: 16, maxWidth: "100%" }}>
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, brand, barcode..." style={{ flex: 1 }} />
+      <form onSubmit={handleSearch} className="search-bar">
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, brand, barcode..." />
         <select value={categoryId} onChange={e => setSearchParams({ query, category_id: e.target.value, page: "1" })}>
           <option value="">All Categories</option>
           {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -82,21 +82,21 @@ export default function Products() {
                   <td>{p.strength || "—"}</td>
                   <td>{p.form || "—"}</td>
                   <td>{p.reorder_level}</td>
-                  <td>
-                    <Link to={`/products/${p.id}/edit`}>Edit</Link>
-                    <button onClick={() => handleDelete(p.id)}>Delete</button>
-                  </td>
+                    <td>
+                      <Link to={`/products/${p.id}/edit`} className="action-link">Edit</Link>
+                      <button onClick={() => handleDelete(p.id)} className="action-link action-link-danger">Delete</button>
+                    </td>
                 </tr>
               ))}
             </tbody>
           </table>
 
           {totalPages > 1 && (
-            <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
+            <div className="pagination">
               {page > 1 && (
                 <button onClick={() => setSearchParams({ query, category_id: categoryId, page: String(page - 1) })}>Previous</button>
               )}
-              <span style={{ padding: "8px 0" }}>Page {page} of {totalPages}</span>
+              <span>Page {page} of {totalPages}</span>
               {page < totalPages && (
                 <button onClick={() => setSearchParams({ query, category_id: categoryId, page: String(page + 1) })}>Next</button>
               )}

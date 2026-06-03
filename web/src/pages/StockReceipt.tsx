@@ -41,7 +41,7 @@ export default function StockReceipt() {
   };
 
   return (
-    <div>
+    <div className="form-page">
       <h1>Receive Stock</h1>
       <form onSubmit={handleSubmit}>
         <label>Product<select value={form.product_id} onChange={update("product_id")} required>

@@ -89,7 +89,7 @@ export default function PatientDetail() {
         <h1>{patient.first_name} {patient.last_name}</h1>
         <div>
           <Link to={`/patients/${id}/edit`} className="btn">Edit</Link>
-          <button onClick={handleDelete} style={{ marginLeft: 8 }}>Deactivate</button>
+          <button onClick={handleDelete} className="btn btn-danger">Deactivate</button>
         </div>
       </div>
 
@@ -104,12 +104,12 @@ export default function PatientDetail() {
           <tr><td><strong>Genotype</strong></td><td>{patient.genotype || "—"}</td></tr>
           <tr><td><strong>Emergency Contact</strong></td><td>{patient.emergency_contact_name ? `${patient.emergency_contact_name} (${patient.emergency_contact_phone})` : "—"}</td></tr>
           <tr><td><strong>Notes</strong></td><td>{patient.notes || "—"}</td></tr>
-          <tr><td><strong>Status</strong></td><td>{patient.is_active ? "Active" : "Inactive"}</td></tr>
+          <tr><td><strong>Status</strong></td><td><span className={`badge ${patient.is_active ? "badge-active" : "badge-inactive"}`}>{patient.is_active ? "Active" : "Inactive"}</span></td></tr>
         </tbody>
       </table>
 
       <h2 style={{ marginTop: 32 }}>Allergies</h2>
-      <form onSubmit={handleAddAllergy} style={{ display: "flex", gap: 8, maxWidth: "100%", marginBottom: 12 }}>
+      <form onSubmit={handleAddAllergy} className="search-bar" style={{ marginBottom: 12 }}>
         <input value={newAllergy} onChange={e => setNewAllergy(e.target.value)} placeholder="Allergy" required />
         <select value={newSeverity} onChange={e => setNewSeverity(e.target.value)}>
           <option value="">Severity</option>
@@ -126,9 +126,9 @@ export default function PatientDetail() {
             {allergies.map(a => (
               <tr key={a.id}>
                 <td>{a.allergy}</td>
-                <td>{a.severity || "—"}</td>
+                  <td>{a.severity || "—"}</td>
                 <td>{a.notes || "—"}</td>
-                <td><button onClick={() => handleRemoveAllergy(a.id)}>Remove</button></td>
+                <td><button onClick={() => handleRemoveAllergy(a.id)} className="action-link action-link-danger">Remove</button></td>
               </tr>
             ))}
           </tbody>
@@ -136,7 +136,7 @@ export default function PatientDetail() {
       )}
 
       <h2 style={{ marginTop: 32 }}>Conditions</h2>
-      <form onSubmit={handleAddCondition} style={{ display: "flex", gap: 8, maxWidth: "100%", marginBottom: 12 }}>
+      <form onSubmit={handleAddCondition} className="search-bar" style={{ marginBottom: 12 }}>
         <input value={newCondition} onChange={e => setNewCondition(e.target.value)} placeholder="Condition" required />
         <button type="submit">Add</button>
       </form>

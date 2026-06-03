@@ -45,7 +45,7 @@ export default function UserForm() {
   };
 
   return (
-    <div>
+    <div className="form-page">
       <h1>{isNew ? "New User" : "Edit User"}</h1>
       <form onSubmit={handleSubmit}>
         <label>First Name<input value={form.first_name} onChange={update("first_name")} required /></label>
