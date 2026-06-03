@@ -431,23 +431,31 @@ button[type="submit"]:disabled {
   margin: 0;
 }
 
-/* Form sections (multi-card layout) */
-.form-page-sections {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/* Form sections (card grid layout) */
+.form-sections-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 24px;
+  align-items: start;
   padding-top: 8px;
   width: 100%;
 }
-.form-page-sections h1 {
-  width: 100%;
-  max-width: 800px;
+.form-sections-grid .page-header {
+  grid-column: 1 / -1;
   margin-bottom: 0;
 }
-.form-section {
+.form-sections-grid > form {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  background: none;
+  box-shadow: none;
+  padding: 0;
+  max-width: 100%;
   width: 100%;
-  max-width: 800px;
+}
+.form-section {
   background: var(--surface);
   padding: 28px 32px;
   border-radius: var(--radius);
@@ -498,12 +506,10 @@ button[type="submit"]:disabled {
   box-shadow: 0 0 0 3px var(--primary-ring);
 }
 .form-actions {
-  width: 100%;
-  max-width: 800px;
+  grid-column: 1 / -1;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  margin-top: 4px;
 }
 
 /* Auth Pages */

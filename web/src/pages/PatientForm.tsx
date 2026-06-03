@@ -49,9 +49,12 @@ export default function PatientForm() {
   };
 
   return (
-    <div className="form-page-sections">
-      <h1>{isNew ? "New Patient" : "Edit Patient"}</h1>
-      <form onSubmit={handleSubmit} style={{ background: "none", boxShadow: "none", padding: 0, maxWidth: "100%", width: "100%" }}>
+    <div className="form-sections-grid">
+      <div className="page-header">
+        <h1>{isNew ? "New Patient" : "Edit Patient"}</h1>
+      </div>
+
+      <form onSubmit={handleSubmit}>
         <div className="form-section">
           <div className="form-section-title">Personal Information</div>
           <div className="form-grid">
