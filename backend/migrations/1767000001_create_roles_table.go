@@ -13,7 +13,7 @@ func init() {
 				olympian.String("name")
 				olympian.String("slug").Unique()
 				olympian.String("description").Nullable()
-				olympian.String("organisation_id")
+				olympian.String("organisation_id").Nullable()
 				olympian.Boolean("is_system").Default("false")
 				olympian.Timestamps()
 				olympian.SoftDeletes()

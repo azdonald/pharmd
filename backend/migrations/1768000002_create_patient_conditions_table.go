@@ -11,7 +11,7 @@ func init() {
 			return olympian.Table("patient_conditions").Create(func() {
 				olympian.String("id").Primary()
 				olympian.String("patient_id")
-				olympian.String("condition")
+				olympian.String("condition_name")
 				olympian.Text("notes").Nullable()
 				olympian.Timestamps()
 			})

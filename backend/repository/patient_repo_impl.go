@@ -189,7 +189,7 @@ func (r *PatientRepoImpl) RemovePatientAllergy(ctx context.Context, patientID, a
 func (r *PatientRepoImpl) ListPatientConditions(ctx context.Context, patientID string) ([]models.PatientCondition, error) {
 	orgID := ctx.Value("organisation_id").(string)
 	rows, err := r.db.QueryContext(ctx,
-		`SELECT c.id, c.patient_id, c.condition, c.notes, c.created_at
+		`SELECT c.id, c.patient_id, c.condition_name, c.notes, c.created_at
 		 FROM patient_conditions c
 		 JOIN patients p ON p.id = c.patient_id
 		 WHERE c.patient_id = ? AND p.organisation_id = ? AND p.deleted_at IS NULL
@@ -214,7 +214,7 @@ func (r *PatientRepoImpl) ListPatientConditions(ctx context.Context, patientID s
 
 func (r *PatientRepoImpl) AddPatientCondition(ctx context.Context, condition models.PatientCondition) error {
 	_, err := r.db.ExecContext(ctx,
-		`INSERT INTO patient_conditions (id, patient_id, condition, notes, created_at, updated_at)
+		`INSERT INTO patient_conditions (id, patient_id, condition_name, notes, created_at, updated_at)
 		 VALUES (?, ?, ?, ?, ?, ?)`,
 		condition.ID, condition.PatientID, condition.Condition, condition.Notes,
 		condition.CreatedAt, condition.CreatedAt,
