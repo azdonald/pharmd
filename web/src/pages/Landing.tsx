@@ -6,18 +6,18 @@ export default function Landing() {
   return (
     <div className="bg-background text-on-surface overflow-x-hidden">
       {/* TopNavBar */}
-      <nav className="fixed top-0 w-full z-50 bg-surface-container-lowest shadow-sm transition-all duration-300">
+      <nav className="fixed top-0 w-full z-50 bg-surface-container-lowest shadow-sm">
         <div className="max-w-7xl mx-auto px-container-padding py-4 flex justify-between items-center">
           <div className="font-headline-md text-headline-md font-bold text-primary">PharmaFlow</div>
           <div className="hidden md:flex items-center gap-8">
-            <a className="text-primary font-bold border-b-2 border-primary pb-1" href="#features">Features</a>
-            <a className="text-on-surface-variant hover:text-primary" href="#how-it-works">How It Works</a>
-            <a className="text-on-surface-variant hover:text-primary" href="#">Solutions</a>
-            <a className="text-on-surface-variant hover:text-primary" href="#">Pricing</a>
+            <a className="text-primary font-bold border-b-2 border-primary pb-1 font-body-md text-body-md" href="#features">Features</a>
+            <a className="text-on-surface-variant hover:text-primary font-body-md text-body-md" href="#how-it-works">How It Works</a>
+            <a className="text-on-surface-variant hover:text-primary font-body-md text-body-md" href="#">Solutions</a>
+            <a className="text-on-surface-variant hover:text-primary font-body-md text-body-md" href="#">Pricing</a>
           </div>
           <div className="flex items-center gap-4">
-            <button onClick={() => navigate("/login")} className="hidden sm:block text-on-surface-variant hover:text-primary">Login</button>
-            <button onClick={() => navigate("/app")} className="bg-primary text-on-primary px-6 py-2 rounded-lg font-semibold hover:bg-primary-container shadow-sm">Get Started</button>
+            <button onClick={() => navigate("/login")} className="hidden sm:block text-on-surface-variant font-body-md text-body-md hover:text-primary">Login</button>
+            <button onClick={() => navigate("/app")} className="bg-primary text-on-primary px-6 py-2 rounded-lg font-body-md text-body-md font-semibold hover:bg-primary-container shadow-sm">Get Started</button>
           </div>
         </div>
       </nav>
@@ -30,7 +30,7 @@ export default function Landing() {
               <span className="material-symbols-outlined text-[14px]">verified</span> NEW: V2.0 CLINICAL ENGINE RELEASED
             </div>
             <h1 className="font-display-lg text-display-lg text-on-surface leading-tight">Pharmacy Management <br/> <span className="text-primary">Reimagined.</span></h1>
-            <p className="text-on-surface-variant font-body-lg text-body-lg max-w-xl leading-relaxed">PharmaFlow delivers clinical precision and operational efficiency to modern pharmacies. Streamline your workflow, manage complex inventory, and focus on what matters most: patient care.</p>
+            <p className="text-on-surface-variant font-body-lg text-body-lg max-w-xl">PharmaFlow delivers clinical precision and operational efficiency to modern pharmacies. Streamline your workflow, manage complex inventory, and focus on what matters most: patient care.</p>
             <div className="flex flex-wrap gap-4">
               <button onClick={() => navigate("/register")} className="bg-primary text-on-primary px-8 py-4 rounded-lg font-headline-sm text-headline-sm hover:bg-primary-container shadow-md flex items-center gap-2 group">
                 Get Started Free
@@ -46,7 +46,7 @@ export default function Landing() {
                 <div className="w-10 h-10 rounded-full border-2 border-white bg-surface-container-high flex items-center justify-center overflow-hidden"><div className="w-full h-full bg-secondary/10 flex items-center justify-center text-xs font-bold text-secondary">SM</div></div>
                 <div className="w-10 h-10 rounded-full border-2 border-white bg-surface-container-high flex items-center justify-center overflow-hidden"><div className="w-full h-full bg-tertiary/10 flex items-center justify-center text-xs font-bold text-tertiary">RK</div></div>
               </div>
-              <p className="text-on-surface-variant">Trusted by <span className="font-bold text-on-surface">2,400+</span> healthcare professionals</p>
+              <p className="text-on-surface-variant font-body-md text-body-md">Trusted by <span className="font-bold text-on-surface">2,400+</span> healthcare professionals</p>
             </div>
           </div>
           <div className="relative">
@@ -115,7 +115,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-container-padding">
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
             <div className="max-w-xl">
-              <h2 className="font-headline-md text-headline-md mb-4">Simplified Workflow</h2>
+              <h2 className="font-headline-md text-headline-md mb-4 text-on-surface">Simplified Workflow</h2>
               <p className="text-on-surface-variant font-body-lg text-body-lg">Transitioning to PharmaFlow is seamless. Our 3-step integration process gets your team up and running within days, not weeks.</p>
             </div>
             <a className="text-primary font-bold flex items-center gap-2 hover:underline cursor-pointer">Explore Implementation Guide <span className="material-symbols-outlined">chevron_right</span></a>

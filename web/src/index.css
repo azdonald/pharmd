@@ -48,6 +48,11 @@
   --color-outline-variant: #c3c5d9;
   --color-secondary-fixed: #7df4ff;
   --color-on-secondary-fixed: #002022;
+  --font-data-mono: "JetBrains Mono", monospace;
+  --spacing-card-gap: 1.5rem;
+  --spacing-container-padding: 1.5rem;
+  --spacing-gutter: 1.5rem;
+  --spacing-base: 1rem;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -68,6 +73,31 @@ body {
 .fill-icon {
   font-variation-settings: 'FILL' 1;
 }
+
+/* Custom typography utilities */
+.font-display-lg { font-weight: 700; }
+.text-display-lg { font-size: 2rem; line-height: 1.2; }
+
+.font-headline-sm { font-weight: 600; }
+.text-headline-sm { font-size: 1.125rem; }
+
+.font-headline-md { font-weight: 600; }
+.text-headline-md { font-size: 1.5rem; }
+
+.font-body-lg { font-weight: 400; }
+.text-body-lg { font-size: 1rem; line-height: 1.6; }
+
+.font-body-md { font-weight: 400; }
+.text-body-md { font-size: 0.875rem; line-height: 1.5; }
+
+.font-label-caps { font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.text-label-caps { font-size: 0.6875rem; }
+
+.font-data-mono { font-family: "JetBrains Mono", monospace; }
+.text-data-mono { font-size: 0.875rem; }
+
+.action-link-danger { color: #dc2626; }
+.action-link-danger:hover { background: #fef2f2; }
 
 /* Shared page styles (used by existing pages) */
 h1 {
