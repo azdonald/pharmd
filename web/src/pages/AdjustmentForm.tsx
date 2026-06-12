@@ -37,7 +37,7 @@ export default function AdjustmentForm() {
     try {
       await createAdjustment(form);
       showToast("Adjustment recorded successfully");
-      navigate("/inventory");
+      navigate("/app/inventory");
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Save failed", "error");
     } finally {

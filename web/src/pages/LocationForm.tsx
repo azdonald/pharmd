@@ -36,7 +36,7 @@ export default function LocationForm() {
         await updateLocation(id!, form);
         showToast("Location updated successfully");
       }
-      navigate("/locations");
+      navigate("/app/locations");
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Save failed", "error");
     } finally {

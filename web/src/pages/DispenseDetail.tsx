@@ -68,7 +68,7 @@ export default function DispenseDetail() {
         notes: formNotes || undefined,
         is_controlled: formControlled,
       });
-      navigate(`/dispensing/${created.id}`);
+      navigate(`/app/dispensing/${created.id}`);
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Dispense failed", "error");
     }
@@ -81,7 +81,7 @@ export default function DispenseDetail() {
     <div>
       <div className="page-header">
         <h1>Dispense Record</h1>
-        <button onClick={() => navigate("/dispensing")}>Back</button>
+        <button onClick={() => navigate("/app/dispensing")}>Back</button>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>

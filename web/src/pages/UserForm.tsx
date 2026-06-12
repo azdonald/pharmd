@@ -32,14 +32,14 @@ export default function UserForm() {
       if (isNew) {
         const user = await createUser({ ...form, role_id: roleId || undefined });
         showToast("User created successfully");
-        navigate(`/users/${user.id}`);
+        navigate(`/app/users/${user.id}`);
       } else {
         await updateUser(id!, form);
         if (roleId) {
           await assignUserRole(id!, roleId);
         }
         showToast("User updated successfully");
-        navigate("/users");
+        navigate("/app/users");
       }
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Save failed", "error");

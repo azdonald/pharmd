@@ -3,6 +3,10 @@ import { Link } from "react-router-dom";
 import { listSuppliers, deleteSupplier, type Supplier } from "../api/suppliers";
 import { useToast } from "../context/ToastContext";
 
+function Icon({ name, className }: { name: string; className?: string }) {
+  return <span className={`material-symbols-outlined ${className ?? ""}`}>{name}</span>;
+}
+
 export default function Suppliers() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
@@ -10,10 +14,11 @@ export default function Suppliers() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const { showToast } = useToast();
+  const limit = 20;
 
   const load = () => {
     setLoading(true);
-    listSuppliers(page, 20, search).then(res => {
+    listSuppliers(page, limit, search).then(res => {
       setSuppliers(res.data);
       setTotal(res.total);
     }).catch(console.error).finally(() => setLoading(false));
@@ -31,52 +36,95 @@ export default function Suppliers() {
     }
   };
 
-  const totalPages = Math.ceil(total / 20);
+  const totalPages = Math.ceil(total / limit);
 
   return (
     <div>
-      <div className="page-header">
-        <h1>Suppliers</h1>
-        <Link to="/suppliers/new" className="btn">New Supplier</Link>
+      <div className="flex justify-between items-end mb-8">
+        <div>
+          <h2 className="font-display-lg text-display-lg text-on-surface">Suppliers</h2>
+          <p className="text-body-lg text-on-surface-variant">Manage vendor and manufacturer relationships</p>
+        </div>
+        <Link to="/app/suppliers/new" className="flex items-center px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary-container shadow-md transition-all">
+          <Icon name="add" className="mr-2" />New Supplier
+        </Link>
       </div>
 
-      <form className="search-bar" style={{ marginBottom: 12 }}>
-        <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Search suppliers..." />
-        <button type="submit" onClick={e => e.preventDefault()}>Search</button>
-      </form>
+      <div className="mb-8 max-w-md">
+        <div className="relative">
+          <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" />
+          <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
+            className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest py-2 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary"
+            placeholder="Search suppliers..." type="text" />
+        </div>
+      </div>
 
-      {loading ? <p>Loading...</p> : (
-        <>
-          <table>
-            <thead>
-              <tr><th>Name</th><th>Contact</th><th>Phone</th><th>Email</th><th>Active</th><th>Actions</th></tr>
-            </thead>
-            <tbody>
-              {suppliers.map(s => (
-                <tr key={s.id}>
-                  <td><Link to={`/suppliers/${s.id}`}>{s.name}</Link></td>
-                  <td>{s.contact_person || "—"}</td>
-                  <td>{s.phone || "—"}</td>
-                  <td>{s.email || "—"}</td>
-                  <td><span className={`badge ${s.is_active ? "badge-active" : "badge-inactive"}`}>{s.is_active ? "Active" : "Inactive"}</span></td>
-                  <td>
-                    <Link to={`/suppliers/${s.id}/edit`} className="action-link">Edit</Link>
-                    <button onClick={() => handleDelete(s.id)} className="action-link action-link-danger">Delete</button>
-                  </td>
+      <div className="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.02)] border border-outline-variant overflow-hidden">
+        <div className="overflow-x-auto">
+          {loading ? (
+            <div className="p-12 text-center"><p className="text-on-surface-variant">Loading suppliers...</p></div>
+          ) : suppliers.length === 0 ? (
+            <div className="p-12 text-center"><p className="text-on-surface-variant">No suppliers found</p></div>
+          ) : (
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-surface-container-low/50">
+                  <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Contact</th>
+                  <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Phone</th>
+                  <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Email</th>
+                  <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider text-center">Status</th>
+                  <th className="px-6 py-4"></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {totalPages > 1 && (
-            <div className="pagination">
-              {page > 1 && <button onClick={() => setPage(page - 1)}>Previous</button>}
-              <span>Page {page} of {totalPages}</span>
-              {page < totalPages && <button onClick={() => setPage(page + 1)}>Next</button>}
-            </div>
+              </thead>
+              <tbody className="divide-y divide-outline-variant/30">
+                {suppliers.map(s => (
+                  <tr key={s.id} className="hover:bg-surface-container-high/20 transition-colors group">
+                    <td className="px-6 py-4">
+                      <Link to={`/app/suppliers/${s.id}`} className="font-semibold text-on-surface hover:text-primary transition-colors">{s.name}</Link>
+                    </td>
+                    <td className="px-6 py-4 text-body-md text-on-surface-variant">{s.contact_person || "—"}</td>
+                    <td className="px-6 py-4 text-body-md text-on-surface-variant">{s.phone || "—"}</td>
+                    <td className="px-6 py-4 text-body-md text-on-surface-variant">{s.email || "—"}</td>
+                    <td className="px-6 py-4 text-center">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-label-caps font-bold ${
+                        s.is_active ? "bg-secondary-container/20 text-secondary" : "bg-outline-variant/20 text-on-surface-variant"
+                      }`}>{s.is_active ? "Active" : "Inactive"}</span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end space-x-2">
+                        <Link to={`/app/suppliers/${s.id}/edit`} className="px-3 py-1 text-sm text-primary hover:bg-primary/5 rounded transition-colors">Edit</Link>
+                        <button onClick={() => handleDelete(s.id)} className="px-3 py-1 text-sm text-error hover:bg-error/5 rounded transition-colors">Delete</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
-        </>
-      )}
+        </div>
+        {totalPages > 1 && (
+          <div className="px-6 py-4 border-t border-outline-variant flex justify-between items-center bg-surface-container-low/10">
+            <p className="text-body-md text-on-surface-variant">Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, total)} of {total} suppliers</p>
+            <div className="flex space-x-2">
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+                className="p-2 border border-outline-variant rounded-md hover:bg-surface-container-high disabled:opacity-50 disabled:cursor-not-allowed"><Icon name="chevron_left" /></button>
+              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                const start = Math.max(1, Math.min(page - 2, totalPages - 4)); const p = start + i;
+                if (p > totalPages) return null;
+                return (
+                  <button key={p} onClick={() => setPage(p)}
+                    className={`w-10 h-10 rounded-md flex items-center justify-center font-bold text-sm ${
+                      p === page ? "bg-primary text-on-primary" : "border border-outline-variant hover:bg-surface-container-high"
+                    }`}>{p}</button>
+                );
+              })}
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+                className="p-2 border border-outline-variant rounded-md hover:bg-surface-container-high disabled:opacity-50 disabled:cursor-not-allowed"><Icon name="chevron_right" /></button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

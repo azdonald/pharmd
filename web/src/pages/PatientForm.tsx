@@ -39,11 +39,11 @@ export default function PatientForm() {
       if (isNew) {
         const patient = await createPatient(form);
         showToast("Patient created successfully");
-        navigate(`/patients/${patient.id}`);
+        navigate(`/app/patients/${patient.id}`);
       } else {
         await updatePatient(id!, form);
         showToast("Patient updated successfully");
-        navigate(`/patients/${id}`);
+        navigate(`/app/patients/${id}`);
       }
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Save failed", "error");

@@ -40,7 +40,7 @@ export default function PatientDetail() {
     if (!confirm("Deactivate this patient?")) return;
     try {
       await deletePatient(id!);
-      navigate("/patients");
+      navigate("/app/patients");
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Delete failed", "error");
     }
@@ -90,7 +90,7 @@ export default function PatientDetail() {
       <div className="page-header">
         <h1>{patient.first_name} {patient.last_name}</h1>
         <div style={{ display: "flex", gap: 8 }}>
-          <Link to={`/patients/${id}/edit`} className="btn">Edit</Link>
+          <Link to={`/app/patients/${id}/edit`} className="btn">Edit</Link>
           <button onClick={handleDelete} className="btn btn-danger">Deactivate</button>
         </div>
       </div>

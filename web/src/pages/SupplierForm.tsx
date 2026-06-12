@@ -41,7 +41,7 @@ export default function SupplierForm() {
         await updateSupplier(id!, form);
         showToast("Supplier updated successfully");
       }
-      navigate("/suppliers");
+      navigate("/app/suppliers");
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Save failed", "error");
     } finally {

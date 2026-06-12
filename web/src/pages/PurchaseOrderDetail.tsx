@@ -88,7 +88,7 @@ export default function PurchaseOrderDetail() {
     <div>
       <div className="page-header">
         <h1>Purchase Order: {po.po_number}</h1>
-        <button onClick={() => navigate("/purchases")}>Back</button>
+        <button onClick={() => navigate("/app/purchases")}>Back</button>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
@@ -243,7 +243,7 @@ export function PurchaseOrderForm() {
         notes: notes || undefined,
         items,
       });
-      navigate(`/purchases/${created.id}`);
+      navigate(`/app/purchases/${created.id}`);
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Create failed", "error");
     }
@@ -310,7 +310,7 @@ export function PurchaseOrderForm() {
 
         <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
           <button type="submit">Create Purchase Order</button>
-          <button type="button" onClick={() => navigate("/purchases")}>Cancel</button>
+          <button type="button" onClick={() => navigate("/app/purchases")}>Cancel</button>
         </div>
       </form>
       </div>

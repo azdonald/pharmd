@@ -56,7 +56,7 @@ export default function PrescriptionDetail() {
     if (!id || !confirm("Delete this prescription?")) return;
     try {
       await deletePrescription(id);
-      navigate("/prescriptions");
+      navigate("/app/prescriptions");
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Delete failed", "error");
     }
@@ -73,7 +73,7 @@ export default function PrescriptionDetail() {
     <div>
       <div className="page-header">
         <h1>Prescription</h1>
-        <button onClick={() => navigate("/prescriptions")}>Back</button>
+        <button onClick={() => navigate("/app/prescriptions")}>Back</button>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
@@ -182,7 +182,7 @@ export function PrescriptionForm() {
         expiry_date: expiryDate || undefined,
         items: items.map(i => ({ ...i, duration: i.duration || undefined, notes: i.notes || undefined })),
       });
-      navigate(`/prescriptions/${created.id}`);
+      navigate(`/app/prescriptions/${created.id}`);
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Create failed", "error");
     }
@@ -262,7 +262,7 @@ export function PrescriptionForm() {
 
         <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
           <button type="submit">Create Prescription</button>
-          <button type="button" onClick={() => navigate("/prescriptions")}>Cancel</button>
+          <button type="button" onClick={() => navigate("/app/prescriptions")}>Cancel</button>
         </div>
       </form>
       </div>

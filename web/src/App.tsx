@@ -6,6 +6,7 @@ import { Layout } from "./components/Layout";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import Landing from "./pages/Landing";
 import ChangePassword from "./pages/ChangePassword";
 import Permissions from "./pages/Permissions";
 import Roles from "./pages/Roles";
@@ -48,7 +49,8 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+          <Route path="/" element={<Landing />} />
+          <Route path="/app" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
             <Route index element={<Dashboard />} />
             <Route path="change-password" element={<ChangePassword />} />
             <Route path="permissions" element={<Permissions />} />

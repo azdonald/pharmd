@@ -42,7 +42,7 @@ export default function RoleForm() {
         await setRolePermissions(id!, selectedPerms);
       }
       showToast(isNew ? "Role created successfully" : "Role updated successfully");
-      navigate(`/roles/${role.id}`);
+      navigate(`/app/roles/${role.id}`);
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Save failed", "error");
     } finally {

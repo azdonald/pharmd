@@ -2,6 +2,10 @@ import { useEffect, useState, type ReactElement } from "react";
 import { listCategories, deleteCategory, createCategory, type ProductCategory } from "../api/products";
 import { useToast } from "../context/ToastContext";
 
+function Icon({ name, className }: { name: string; className?: string }) {
+  return <span className={`material-symbols-outlined ${className ?? ""}`}>{name}</span>;
+}
+
 export default function Categories() {
   const { showToast } = useToast();
   const [categories, setCategories] = useState<ProductCategory[]>([]);
@@ -22,9 +26,7 @@ export default function Categories() {
     if (!newName.trim()) return;
     try {
       await createCategory({ name: newName, description: newDesc || undefined, parent_id: newParent || undefined });
-      setNewName("");
-      setNewDesc("");
-      setNewParent("");
+      setNewName(""); setNewDesc(""); setNewParent("");
       load();
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Failed", "error");
@@ -52,12 +54,19 @@ export default function Categories() {
   }
 
   const renderCategory = (c: ProductCategory, depth = 0) => (
-    <tr key={c.id}>
-      <td style={{ paddingLeft: 20 * depth + 8 }}>{c.name}</td>
-      <td>{c.description || "—"}</td>
-      <td>{c.is_active ? "Yes" : "No"}</td>
-      <td>
-        <button onClick={() => handleDelete(c.id)}>Delete</button>
+    <tr key={c.id} className="hover:bg-surface-container-high/20 transition-colors">
+      <td className="px-6 py-4 font-semibold text-on-surface" style={{ paddingLeft: 20 * depth + 24 }}>
+        {depth > 0 && <Icon name="subdirectory_arrow_right" className="text-on-surface-variant mr-1 text-sm" />}
+        {c.name}
+      </td>
+      <td className="px-6 py-4 text-body-md text-on-surface-variant">{c.description || "—"}</td>
+      <td className="px-6 py-4 text-center">
+        <span className={`inline-flex items-center px-3 py-1 rounded-full text-label-caps font-bold ${
+          c.is_active ? "bg-secondary-container/20 text-secondary" : "bg-outline-variant/20 text-on-surface-variant"
+        }`}>{c.is_active ? "Active" : "Inactive"}</span>
+      </td>
+      <td className="px-6 py-4 text-right">
+        <button onClick={() => handleDelete(c.id)} className="px-3 py-1 text-sm text-error hover:bg-error/5 rounded transition-colors">Delete</button>
       </td>
     </tr>
   );
@@ -71,36 +80,64 @@ export default function Categories() {
     return rows;
   };
 
-  if (loading) return <p>Loading...</p>;
-
   return (
     <div>
-      <div className="page-header">
-        <h1>Product Categories</h1>
+      <div className="flex justify-between items-end mb-8">
+        <div>
+          <h2 className="font-display-lg text-display-lg text-on-surface">Product Categories</h2>
+          <p className="text-body-lg text-on-surface-variant">Organize products into categories and subcategories</p>
+        </div>
       </div>
 
-      <form onSubmit={handleCreate} style={{ display: "flex", gap: 8, maxWidth: "100%", marginBottom: 16, alignItems: "flex-end" }}>
-        <label style={{ flex: 1 }}>Name
-          <input value={newName} onChange={e => setNewName(e.target.value)} required />
-        </label>
-        <label style={{ flex: 1 }}>Description
-          <input value={newDesc} onChange={e => setNewDesc(e.target.value)} />
-        </label>
-        <label>Parent
-          <select value={newParent} onChange={e => setNewParent(e.target.value)}>
-            <option value="">None (root)</option>
-            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
-        </label>
-        <button type="submit">Add</button>
+      {/* Add form */}
+      <form onSubmit={handleCreate} className="mb-8 p-4 rounded-xl border border-outline-variant bg-surface-container-lowest">
+        <h3 className="font-semibold text-on-surface mb-3">Add New Category</h3>
+        <div className="flex gap-3 items-end">
+          <div className="flex-1">
+            <label className="block text-xs font-medium text-on-surface-variant mb-1">Name *</label>
+            <input value={newName} onChange={e => setNewName(e.target.value)} required
+              className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none" />
+          </div>
+          <div className="flex-1">
+            <label className="block text-xs font-medium text-on-surface-variant mb-1">Description</label>
+            <input value={newDesc} onChange={e => setNewDesc(e.target.value)}
+              className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-on-surface-variant mb-1">Parent</label>
+            <select value={newParent} onChange={e => setNewParent(e.target.value)}
+              className="rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none">
+              <option value="">None (root)</option>
+              {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </div>
+          <button type="submit"
+            className="px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary-container transition-all">Add</button>
+        </div>
       </form>
 
-      <table>
-        <thead><tr><th>Name</th><th>Description</th><th>Active</th><th>Actions</th></tr></thead>
-        <tbody>
-          {rootCats.map(c => renderWithChildren(c))}
-        </tbody>
-      </table>
+      {/* Table */}
+      <div className="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.02)] border border-outline-variant overflow-hidden">
+        <div className="overflow-x-auto">
+          {loading ? (
+            <div className="p-12 text-center"><p className="text-on-surface-variant">Loading categories...</p></div>
+          ) : (
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-surface-container-low/50">
+                  <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Description</th>
+                  <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider text-center">Status</th>
+                  <th className="px-6 py-4"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-outline-variant/30">
+                {rootCats.map(c => renderWithChildren(c))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

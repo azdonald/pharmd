@@ -35,7 +35,7 @@ export default function StockReceipt() {
     try {
       await createBatch(form);
       showToast("Stock received successfully");
-      navigate("/inventory");
+      navigate("/app/inventory");
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Save failed", "error");
     } finally {

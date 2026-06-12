@@ -63,11 +63,11 @@ export default function ProductForm() {
       if (isNew) {
         const product = await createProduct(form);
         showToast("Product created successfully");
-        navigate(`/products/${product.id}`);
+        navigate(`/app/products/${product.id}`);
       } else {
         await updateProduct(id!, form);
         showToast("Product updated successfully");
-        navigate(`/products/${id}`);
+        navigate(`/app/products/${id}`);
       }
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Save failed", "error");

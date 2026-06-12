@@ -44,7 +44,7 @@ export default function ProductDetail() {
     if (!confirm("Delete this product?")) return;
     try {
       await deleteProduct(id!);
-      navigate("/products");
+      navigate("/app/products");
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Delete failed", "error");
     }
@@ -80,7 +80,7 @@ export default function ProductDetail() {
       <div className="page-header">
         <h1>{product.name}</h1>
         <div>
-          <Link to={`/products/${id}/edit`} className="btn">Edit</Link>
+          <Link to={`/app/products/${id}/edit`} className="btn">Edit</Link>
           <button onClick={handleDelete} style={{ marginLeft: 8 }}>Delete</button>
         </div>
       </div>

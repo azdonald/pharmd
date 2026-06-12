@@ -22,7 +22,7 @@ export default function Register() {
     }
     try {
       await register(form.email, form.password, form.orgName, form.firstName, form.lastName);
-      navigate("/");
+      navigate("/app");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
     }

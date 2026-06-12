@@ -66,7 +66,7 @@ export default function SupplierDetail() {
     <div>
       <div className="page-header">
         <h1>{supplier.name}</h1>
-        <Link to={`/suppliers/${id}/edit`} className="btn">Edit</Link>
+        <Link to={`/app/suppliers/${id}/edit`} className="btn">Edit</Link>
       </div>
 
       <table>
