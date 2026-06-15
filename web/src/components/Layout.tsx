@@ -61,7 +61,7 @@ export function Layout() {
         {/* Brand */}
         <div className="mb-10 px-6">
           <h1 className="font-headline-sm text-headline-sm text-primary">
-            PharmaFlow
+            PharmaD
           </h1>
           <p className="mt-1 text-xs uppercase tracking-widest text-on-surface-variant">
             Clinical Admin
