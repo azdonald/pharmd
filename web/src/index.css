@@ -428,9 +428,16 @@ button[type="submit"]:not([class]):disabled {
   margin-bottom: 8px;
   cursor: pointer;
 }
-.checkbox-label input {
-  width: auto;
+.form-page form .checkbox-label {
+  margin-bottom: 10px;
+}
+.form-page form .checkbox-label input[type="checkbox"],
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
   margin: 0;
+  padding: 0;
 }
 
 /* Form sections (card grid layout) */
