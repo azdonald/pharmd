@@ -58,7 +58,7 @@ export default function SalesHistory() {
 
   return (
     <div>
-      <div className="flex justify-between items-end mb-8">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="font-display-lg text-display-lg text-on-surface">Sales History</h2>
           <p className="text-body-lg text-on-surface-variant">View and manage completed transactions</p>

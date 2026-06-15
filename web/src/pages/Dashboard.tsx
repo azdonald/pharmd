@@ -160,7 +160,7 @@ export default function Dashboard() {
   return (
     <>
       {/* Header Section */}
-      <div className="mb-8 flex items-end justify-between">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="mb-0 font-display-lg text-display-lg text-on-surface">
             Sales Overview
@@ -169,7 +169,7 @@ export default function Dashboard() {
             Real-time performance and inventory metrics.
           </p>
         </div>
-        <div className="flex space-x-3">
+        <div className="flex flex-wrap gap-3">
           <button className="flex items-center rounded-lg border border-primary px-4 py-2 font-semibold text-primary transition-all hover:bg-surface-container-high">
             <Icon name="calendar_today" className="mr-2 text-sm" />
             Last 7 Days
@@ -224,7 +224,7 @@ export default function Dashboard() {
       <div className="mb-8 grid grid-cols-1 gap-card-gap lg:grid-cols-3">
         {/* Sales Chart */}
         <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_12px_24px_rgba(13,97,255,0.06)] lg:col-span-2">
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h3 className="text-body-lg font-bold">Weekly Sales Trends</h3>
             <div className="flex items-center space-x-4">
               <div className="flex items-center">
@@ -310,7 +310,7 @@ export default function Dashboard() {
 
       {/* Recent Transactions */}
       <div className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-[0_4px_12px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_12px_24px_rgba(13,97,255,0.06)]">
-        <div className="flex items-center justify-between border-b border-outline-variant bg-surface-container-low/30 px-6 py-4">
+        <div className="flex flex-col gap-3 border-b border-outline-variant bg-surface-container-low/30 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
           <h3 className="text-body-lg font-bold">Recent Transactions</h3>
           <div className="relative">
             <Icon

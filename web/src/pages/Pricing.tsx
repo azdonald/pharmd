@@ -68,7 +68,7 @@ export default function Pricing() {
 
   return (
     <div>
-      <div className="flex justify-between items-end mb-8">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="font-display-lg text-display-lg text-on-surface">Product Pricing</h2>
           <p className="text-body-lg text-on-surface-variant">Manage product selling prices per location</p>
@@ -88,7 +88,7 @@ export default function Pricing() {
       {showForm && (
         <form onSubmit={handleSubmit} className="mb-8 p-4 rounded-xl border border-outline-variant bg-surface-container-lowest">
           <h3 className="font-semibold text-on-surface mb-3">New Price Entry</h3>
-          <div className="flex gap-3 items-end">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="flex-1">
               <label className="block text-xs font-medium text-on-surface-variant mb-1">Product *</label>
               <select value={formProduct} onChange={e => setFormProduct(e.target.value)} required

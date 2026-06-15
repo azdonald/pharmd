@@ -48,9 +48,9 @@ export default function Inventory() {
   return (
     <div>
       {/* Header */}
-      <div className="flex justify-between items-end mb-8">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="flex items-center gap-4 mb-1">
+          <div className="mb-1 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
             <h2 className="font-display-lg text-display-lg text-on-surface">
               Inventory Management
             </h2>
@@ -68,7 +68,7 @@ export default function Inventory() {
             Real-time medication stock tracking and replenishment
           </p>
         </div>
-        <div className="flex space-x-3">
+        <div className="flex flex-wrap gap-3">
           <button className="flex items-center px-4 py-2 border border-primary text-primary font-semibold rounded-lg hover:bg-surface-container-high transition-all">
             <Icon name="print" className="mr-2" />
             Print Barcodes

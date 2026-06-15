@@ -70,7 +70,7 @@ export default function DiscountRules() {
 
   return (
     <div>
-      <div className="flex justify-between items-end mb-8">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="font-display-lg text-display-lg text-on-surface">Discount Rules</h2>
           <p className="text-body-lg text-on-surface-variant">Configure pricing discounts and promotions</p>
@@ -86,7 +86,7 @@ export default function DiscountRules() {
       {showForm && (
         <form onSubmit={handleSubmit} className="mb-8 p-4 rounded-xl border border-outline-variant bg-surface-container-lowest">
           <h3 className="font-semibold text-on-surface mb-3">{editId ? "Edit Rule" : "New Discount Rule"}</h3>
-          <div className="flex gap-3 items-end flex-wrap">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
             <div>
               <label className="block text-xs font-medium text-on-surface-variant mb-1">Name *</label>
               <input value={formName} onChange={e => setFormName(e.target.value)} required
@@ -103,7 +103,7 @@ export default function DiscountRules() {
             <div>
               <label className="block text-xs font-medium text-on-surface-variant mb-1">Value *</label>
               <input type="number" min={0} step={0.01} value={formValue} onChange={e => setFormValue(e.target.value)} required
-                className="w-24 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none" />
+                className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary sm:w-24" />
             </div>
             <div>
               <label className="block text-xs font-medium text-on-surface-variant mb-1">Applies To</label>

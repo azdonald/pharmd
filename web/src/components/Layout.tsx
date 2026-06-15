@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { LogOut } from "lucide-react";
@@ -35,8 +36,10 @@ function SidebarIndicator() {
 export function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = () => {
+    setSidebarOpen(false);
     logout();
     navigate("/login");
   };
@@ -56,16 +59,39 @@ export function Layout() {
 
   return (
     <div className="flex min-h-screen bg-surface font-body-md text-on-surface">
+      {sidebarOpen && (
+        <button
+          aria-label="Close navigation"
+          className="fixed inset-0 z-40 bg-inverse-surface/35 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+          type="button"
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 z-50 flex h-screen w-[260px] flex-col border-r border-outline-variant bg-surface py-gutter">
+      <aside
+        className={`fixed left-0 top-0 z-50 flex h-screen w-[260px] flex-col border-r border-outline-variant bg-surface py-gutter shadow-2xl transition-transform duration-200 md:translate-x-0 md:shadow-none ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
         {/* Brand */}
-        <div className="mb-10 px-6">
-          <h1 className="font-headline-sm text-headline-sm text-primary">
-            PharmD
-          </h1>
-          <p className="font-body-md text-on-surface-variant opacity-70">
-            Clinical Admin
-          </p>
+        <div className="mb-10 flex items-start justify-between px-6">
+          <div>
+            <h1 className="font-headline-sm text-headline-sm text-primary">
+              PharmD
+            </h1>
+            <p className="font-body-md text-on-surface-variant opacity-70">
+              Clinical Admin
+            </p>
+          </div>
+          <button
+            aria-label="Close navigation"
+            className="rounded-lg p-1 text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-primary md:hidden"
+            onClick={() => setSidebarOpen(false)}
+            type="button"
+          >
+            <Icon name="close" />
+          </button>
         </div>
 
         {/* Navigation */}
@@ -75,6 +101,7 @@ export function Layout() {
               key={to}
               to={to}
               end={to === "/app"}
+              onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
                 `relative flex items-center px-6 py-3 transition-colors duration-200 ${
                   isActive
@@ -123,10 +150,18 @@ export function Layout() {
       </aside>
 
       {/* Main Content Area */}
-      <div className="ml-[260px] min-h-screen w-full">
+      <div className="min-h-screen w-full md:ml-[260px]">
         {/* TopNavBar */}
-        <header className="fixed right-0 top-0 z-40 flex h-16 w-[calc(100%-260px)] items-center justify-between border-b border-outline-variant bg-surface px-container-padding transition-all duration-200">
+        <header className="fixed left-0 right-0 top-0 z-30 flex h-16 items-center justify-between border-b border-outline-variant bg-surface px-4 transition-all duration-200 sm:px-container-padding md:left-[260px]">
           <div className="flex flex-1 items-center">
+            <button
+              aria-label="Open navigation"
+              className="mr-3 rounded-lg p-2 text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-primary md:hidden"
+              onClick={() => setSidebarOpen(true)}
+              type="button"
+            >
+              <Icon name="menu" />
+            </button>
             {/* <div className="relative w-full max-w-xl">
               <Icon
                 name="search"
@@ -139,17 +174,17 @@ export function Layout() {
               />
             </div>*/}
           </div> 
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-3 sm:space-x-6">
             <button className="relative text-on-surface-variant transition-colors hover:text-primary">
               <Icon name="notifications" />
               <span className="absolute right-0 top-0 h-2 w-2 rounded-full border-2 border-surface bg-error" />
             </button>
-            <button className="text-on-surface-variant transition-colors hover:text-primary">
+            <button className="hidden text-on-surface-variant transition-colors hover:text-primary sm:block">
               <Icon name="help_outline" />
             </button>
-            <div className="h-8 w-px bg-outline-variant" />
+            <div className="hidden h-8 w-px bg-outline-variant sm:block" />
             <div className="flex items-center">
-              <span className="mr-3 text-sm font-semibold text-on-surface">
+              <span className="mr-3 hidden max-w-[160px] truncate text-sm font-semibold text-on-surface sm:inline">
                 {user?.organisation_name ?? "Pharmacy Central"}
               </span>
               <div className="flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant bg-surface-container text-xs font-bold text-primary">
@@ -160,7 +195,7 @@ export function Layout() {
         </header>
 
         {/* Page Content */}
-        <main className="px-container-padding pb-12 pt-24">
+        <main className="px-4 pb-12 pt-24 sm:px-container-padding">
           <Outlet />
         </main>
       </div>

@@ -72,8 +72,8 @@ export default function Products() {
       />
 
       {/* Search & Filters */}
-      <form onSubmit={handleSearch} className="mb-8 flex gap-3 items-end">
-        <div className="relative flex-1 max-w-md">
+      <form onSubmit={handleSearch} className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div className="relative flex-1 sm:max-w-md">
           <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" />
           <input
             value={search}
@@ -86,7 +86,7 @@ export default function Products() {
         <select
           value={categoryId}
           onChange={e => setSearchParams({ query, category_id: e.target.value, page: "1" })}
-          className="rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none"
+          className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary sm:w-auto"
         >
           <option value="">All Categories</option>
           {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}

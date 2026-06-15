@@ -88,7 +88,7 @@ export default function Categories() {
       {/* Add form */}
       <form onSubmit={handleCreate} className="mb-8 p-4 rounded-xl border border-outline-variant bg-surface-container-lowest">
         <h3 className="font-semibold text-on-surface mb-3">Add New Category</h3>
-        <div className="flex gap-3 items-end">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex-1">
             <label className="block text-xs font-medium text-on-surface-variant mb-1">Name *</label>
             <input value={newName} onChange={e => setNewName(e.target.value)} required
@@ -102,7 +102,7 @@ export default function Categories() {
           <div>
             <label className="block text-xs font-medium text-on-surface-variant mb-1">Parent</label>
             <select value={newParent} onChange={e => setNewParent(e.target.value)}
-              className="rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none">
+              className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary sm:w-auto">
               <option value="">None (root)</option>
               {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>

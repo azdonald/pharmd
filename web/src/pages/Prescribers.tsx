@@ -60,7 +60,7 @@ export default function Prescribers() {
 
   return (
     <div>
-      <div className="flex justify-between items-end mb-8">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="font-display-lg text-display-lg text-on-surface">Prescribers</h2>
           <p className="text-body-lg text-on-surface-variant">Manage physicians and authorized prescribers</p>
@@ -77,7 +77,7 @@ export default function Prescribers() {
       {showForm && (
         <form onSubmit={handleSubmit} className="mb-8 p-4 rounded-xl border border-outline-variant bg-surface-container-lowest">
           <h3 className="font-semibold text-on-surface mb-3">{editId ? "Edit Prescriber" : "New Prescriber"}</h3>
-          <div className="grid grid-cols-2 gap-3 mb-3">
+          <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className="block text-xs font-medium text-on-surface-variant mb-1">Name *</label>
               <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required
