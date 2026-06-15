@@ -33,7 +33,7 @@ export default function Roles() {
         title="Roles"
         description="Define user roles and access levels"
         actions={
-          <Link to="/app/roles/new" className="flex items-center px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary-container shadow-md transition-all">
+          <Link to="/app/roles/new" className="btn-sky-action">
             <Icon name="add" className="mr-2" />New Role
           </Link>
         }

@@ -174,7 +174,7 @@ export default function Dashboard() {
             <Icon name="calendar_today" className="mr-2 text-sm" />
             Last 7 Days
           </button>
-          <button className="flex items-center rounded-lg bg-primary px-4 py-2 font-semibold text-on-primary shadow-md transition-all hover:bg-primary-container">
+          <button className="btn-sky-action">
             <Icon name="download" className="mr-2 text-sm" />
             Export Report
           </button>

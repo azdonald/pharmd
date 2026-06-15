@@ -74,10 +74,10 @@ export default function Pricing() {
           <p className="text-body-lg text-on-surface-variant">Manage product selling prices per location</p>
         </div>
         <button onClick={() => setShowForm(!showForm)}
-          className={`flex items-center px-4 py-2 font-semibold rounded-lg transition-all ${
+          className={`${
             showForm
-              ? "border border-outline-variant text-on-surface hover:bg-surface-container-high"
-              : "bg-primary text-on-primary shadow-md hover:bg-primary-container"
+              ? "flex items-center px-4 py-2 font-semibold rounded-lg transition-all border border-outline-variant text-on-surface hover:bg-surface-container-high"
+              : "btn-sky-action"
           }`}>
           <Icon name={showForm ? "close" : "add"} className="mr-2" />
           {showForm ? "Cancel" : "Add Price"}

@@ -246,6 +246,29 @@ a:not([class]):hover { text-decoration: underline; }
   background: #dc2626;
 }
 
+.btn-sky-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  background: #38bdf8;
+  color: #ffffff !important;
+  border: 1px solid #38bdf8;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.24);
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.btn-sky-action:hover {
+  background: #0ea5e9;
+  border-color: #0ea5e9;
+  color: #ffffff !important;
+  text-decoration: none;
+  box-shadow: 0 8px 18px rgba(14, 165, 233, 0.24);
+}
+
 /* Search bar wrapper */
 .search-bar {
   display: flex;

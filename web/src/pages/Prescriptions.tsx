@@ -39,7 +39,7 @@ export default function Prescriptions() {
           <h2 className="font-display-lg text-display-lg text-on-surface">Prescriptions</h2>
           <p className="text-body-lg text-on-surface-variant">Manage and track patient prescriptions</p>
         </div>
-        <Link to="/app/prescriptions/new" className="flex items-center px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary-container shadow-md transition-all">
+        <Link to="/app/prescriptions/new" className="btn-sky-action">
           <Icon name="add" className="mr-2" />New Prescription
         </Link>
       </div>

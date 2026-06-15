@@ -63,7 +63,7 @@ export default function Products() {
         actions={
           <Link
             to="/app/products/new"
-            className="flex items-center px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary-container shadow-md transition-all"
+            className="btn-sky-action"
           >
             <Icon name="add" className="mr-2" />
             New Product
@@ -93,7 +93,7 @@ export default function Products() {
         </select>
         <button
           type="submit"
-          className="px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary-container transition-all"
+          className="btn-sky-action"
         >
           Search
         </button>

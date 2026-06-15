@@ -108,7 +108,7 @@ export default function Categories() {
             </select>
           </div>
           <button type="submit"
-            className="px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary-container transition-all">Add</button>
+            className="btn-sky-action">Add</button>
         </div>
       </form>
 

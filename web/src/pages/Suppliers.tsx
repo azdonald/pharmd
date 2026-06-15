@@ -42,7 +42,7 @@ export default function Suppliers() {
         title="Suppliers"
         description="Manage vendor and manufacturer relationships"
         actions={
-          <Link to="/app/suppliers/new" className="flex items-center px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary-container shadow-md transition-all">
+          <Link to="/app/suppliers/new" className="btn-sky-action">
             <Icon name="add" className="mr-2" />New Supplier
           </Link>
         }

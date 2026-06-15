@@ -50,7 +50,7 @@ export default function Patients() {
         title="Patients"
         description="Manage patient records and medical history"
         actions={
-          <Link to="/app/patients/new" className="flex items-center px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary-container shadow-md transition-all">
+          <Link to="/app/patients/new" className="btn-sky-action">
             <Icon name="add" className="mr-2" />New Patient
           </Link>
         }

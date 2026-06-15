@@ -67,7 +67,7 @@ export default function Prescribers() {
         </div>
         {!showForm && (
           <button onClick={() => setShowForm(true)}
-            className="flex items-center px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg shadow-md hover:bg-primary-container transition-all">
+            className="btn-sky-action">
             <Icon name="add" className="mr-2" />New Prescriber
           </button>
         )}
