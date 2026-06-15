@@ -79,7 +79,7 @@ export function Layout() {
                 `relative flex items-center px-6 py-3 transition-colors duration-200 ${
                   isActive
                     ? "bg-surface-container-low font-bold text-primary"
-                    : "text-on-surface-variant hover:bg-surface-container-high hover:text-primary"
+                    : "group text-on-surface-variant hover:bg-surface-container-high hover:text-primary"
                 }`
               }
             >
