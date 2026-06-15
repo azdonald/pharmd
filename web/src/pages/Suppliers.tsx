@@ -2,10 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { listSuppliers, deleteSupplier, type Supplier } from "../api/suppliers";
 import { useToast } from "../context/ToastContext";
+import { Icon, PageHeader, Panel } from "../components/AdminComponents";
 
-function Icon({ name, className }: { name: string; className?: string }) {
-  return <span className={`material-symbols-outlined ${className ?? ""}`}>{name}</span>;
-}
 
 export default function Suppliers() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -40,15 +38,15 @@ export default function Suppliers() {
 
   return (
     <div>
-      <div className="flex justify-between items-end mb-8">
-        <div>
-          <h2 className="font-display-lg text-display-lg text-on-surface">Suppliers</h2>
-          <p className="text-body-lg text-on-surface-variant">Manage vendor and manufacturer relationships</p>
-        </div>
-        <Link to="/app/suppliers/new" className="flex items-center px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary-container shadow-md transition-all">
-          <Icon name="add" className="mr-2" />New Supplier
-        </Link>
-      </div>
+      <PageHeader
+        title="Suppliers"
+        description="Manage vendor and manufacturer relationships"
+        actions={
+          <Link to="/app/suppliers/new" className="flex items-center px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary-container shadow-md transition-all">
+            <Icon name="add" className="mr-2" />New Supplier
+          </Link>
+        }
+      />
 
       <div className="mb-8 max-w-md">
         <div className="relative">
@@ -59,7 +57,7 @@ export default function Suppliers() {
         </div>
       </div>
 
-      <div className="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.02)] border border-outline-variant overflow-hidden">
+      <Panel>
         <div className="overflow-x-auto">
           {loading ? (
             <div className="p-12 text-center"><p className="text-on-surface-variant">Loading suppliers...</p></div>
@@ -103,7 +101,8 @@ export default function Suppliers() {
             </table>
           )}
         </div>
-        {totalPages > 1 && (
+      </Panel>
+      {totalPages > 1 && (
           <div className="px-6 py-4 border-t border-outline-variant flex justify-between items-center bg-surface-container-low/10">
             <p className="text-body-md text-on-surface-variant">Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, total)} of {total} suppliers</p>
             <div className="flex space-x-2">
@@ -125,6 +124,5 @@ export default function Suppliers() {
           </div>
         )}
       </div>
-    </div>
   );
 }

@@ -55,21 +55,21 @@ export function Layout() {
     : "PC";
 
   return (
-    <div className="flex min-h-screen bg-[#F1F5F9]">
+    <div className="flex min-h-screen bg-surface font-body-md text-on-surface">
       {/* Sidebar */}
       <aside className="fixed left-0 top-0 z-50 flex h-screen w-[260px] flex-col border-r border-outline-variant bg-surface py-gutter">
         {/* Brand */}
         <div className="mb-10 px-6">
           <h1 className="font-headline-sm text-headline-sm text-primary">
-            PharmaD
+            PharmD
           </h1>
-          <p className="mt-1 text-xs uppercase tracking-widest text-on-surface-variant">
+          <p className="font-body-md text-on-surface-variant opacity-70">
             Clinical Admin
           </p>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 space-y-1">
+        <nav className="flex-1 overflow-y-auto">
           {navItems.map(({ to, label, icon }) => (
             <NavLink
               key={to}
@@ -100,7 +100,7 @@ export function Layout() {
         {/* User Profile */}
         <div className="mt-auto px-6">
           <div className="flex items-center rounded-lg bg-surface-container-low p-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant bg-white text-xs font-bold text-primary">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant bg-surface-container-lowest text-xs font-bold text-primary">
               {initials || orgInitials}
             </div>
             <div className="ml-3 overflow-hidden">
@@ -126,19 +126,19 @@ export function Layout() {
       <div className="ml-[260px] min-h-screen w-full">
         {/* TopNavBar */}
         <header className="fixed right-0 top-0 z-40 flex h-16 w-[calc(100%-260px)] items-center justify-between border-b border-outline-variant bg-surface px-container-padding transition-all duration-200">
-          <div className="flex w-1/2 items-center">
-            <div className="relative w-full max-w-md">
+          <div className="flex flex-1 items-center">
+            {/* <div className="relative w-full max-w-xl">
               <Icon
                 name="search"
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"
               />
               <input
-                className="w-full rounded-lg border border-outline-variant bg-surface-container-low py-2 pl-10 pr-4 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className="w-full rounded-lg border border-outline-variant bg-surface-container-low py-2 pl-10 pr-4 text-body-md outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary"
                 placeholder="Search orders, medicines, or patients..."
                 type="text"
               />
-            </div>
-          </div>
+            </div>*/}
+          </div> 
           <div className="flex items-center space-x-6">
             <button className="relative text-on-surface-variant transition-colors hover:text-primary">
               <Icon name="notifications" />
@@ -149,10 +149,10 @@ export function Layout() {
             </button>
             <div className="h-8 w-px bg-outline-variant" />
             <div className="flex items-center">
-              <span className="mr-3 text-sm font-medium text-on-surface">
+              <span className="mr-3 text-sm font-semibold text-on-surface">
                 {user?.organisation_name ?? "Pharmacy Central"}
               </span>
-              <div className="flex h-8 w-8 items-center justify-center rounded bg-primary-container text-xs font-bold text-on-primary-container">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant bg-surface-container text-xs font-bold text-primary">
                 {orgInitials}
               </div>
             </div>
@@ -160,7 +160,7 @@ export function Layout() {
         </header>
 
         {/* Page Content */}
-        <main className="mx-auto max-w-[1600px] px-container-padding pb-12 pt-24">
+        <main className="px-container-padding pb-12 pt-24">
           <Outlet />
         </main>
       </div>

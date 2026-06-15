@@ -60,7 +60,7 @@
 body {
   font-family: "Inter", sans-serif;
   color: #191c1e;
-  background: #F1F5F9;
+  background: var(--color-surface);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -92,6 +92,14 @@ body {
   font-variation-settings: 'FILL' 1;
 }
 
+.sidebar-indicator {
+  width: 4px;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
 /* Custom typography utilities */
 .font-display-lg { font-weight: 700; }
 .text-display-lg { font-size: 2rem; line-height: 1.2; }
@@ -118,14 +126,14 @@ body {
 .action-link-danger:hover { background: #fef2f2; }
 
 /* Shared page styles (used by existing pages) */
-h1 {
+h1:not([class]) {
   font-size: 26px;
   font-weight: 700;
   margin-bottom: 24px;
   letter-spacing: -0.4px;
   color: var(--color-on-surface);
 }
-h2 {
+h2:not([class]) {
   font-size: 18px;
   font-weight: 600;
   margin-bottom: 16px;
@@ -133,7 +141,7 @@ h2 {
 }
 
 /* Tables */
-table {
+table:not([class]) {
   width: 100%;
   border-collapse: collapse;
   background: #ffffff;
@@ -141,13 +149,14 @@ table {
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
 }
-th, td {
+table:not([class]) th,
+table:not([class]) td {
   padding: 12px 16px;
   text-align: left;
   border-bottom: 1px solid #e2e8f0;
   font-size: 14px;
 }
-th {
+table:not([class]) th {
   background: #f8fafc;
   font-weight: 600;
   font-size: 12px;
@@ -156,10 +165,10 @@ th {
   color: #64748b;
   padding: 10px 16px;
 }
-td { color: #1e293b; }
-tr:last-child td { border-bottom: none; }
-table a { color: #3b82f6; font-weight: 500; }
-table a:hover { text-decoration: underline; }
+table:not([class]) td { color: #1e293b; }
+table:not([class]) tr:last-child td { border-bottom: none; }
+table:not([class]) a { color: #3b82f6; font-weight: 500; }
+table:not([class]) a:hover { text-decoration: underline; }
 
 /* Status badges */
 .badge {
@@ -198,8 +207,8 @@ table a:hover { text-decoration: underline; }
   text-decoration: none;
 }
 
-a { color: #3b82f6; text-decoration: none; }
-a:hover { text-decoration: underline; }
+a:not([class]) { color: #3b82f6; text-decoration: none; }
+a:not([class]):hover { text-decoration: underline; }
 
 /* Buttons */
 .btn {
@@ -293,7 +302,9 @@ a:hover { text-decoration: underline; }
   width: 100%;
   max-width: 640px;
 }
-form {
+form:not([class]),
+.form-page form,
+.auth-form {
   width: 100%;
   max-width: 640px;
   background: #ffffff;
@@ -301,16 +312,24 @@ form {
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
 }
-form label {
+form:not([class]) label,
+.form-page form label,
+.auth-form label {
   display: block;
   margin-bottom: 18px;
   font-size: 14px;
   font-weight: 500;
   color: #1e293b;
 }
-form input,
-form select,
-form textarea {
+form:not([class]) input,
+form:not([class]) select,
+form:not([class]) textarea,
+.form-page form input,
+.form-page form select,
+.form-page form textarea,
+.auth-form input,
+.auth-form select,
+.auth-form textarea {
   width: 100%;
   padding: 9px 12px;
   margin-top: 6px;
@@ -323,25 +342,35 @@ form textarea {
   transition: border-color 0.15s, box-shadow 0.15s;
   outline: none;
 }
-form input:focus,
-form select:focus,
-form textarea:focus {
+form:not([class]) input:focus,
+form:not([class]) select:focus,
+form:not([class]) textarea:focus,
+.form-page form input:focus,
+.form-page form select:focus,
+.form-page form textarea:focus,
+.auth-form input:focus,
+.auth-form select:focus,
+.auth-form textarea:focus {
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
 }
-form fieldset {
+form:not([class]) fieldset,
+.form-page form fieldset,
+.auth-form fieldset {
   border: 1px solid #e2e8f0;
   padding: 20px;
   margin-bottom: 20px;
   border-radius: 8px;
 }
-form legend {
+form:not([class]) legend,
+.form-page form legend,
+.auth-form legend {
   font-weight: 600;
   font-size: 14px;
   padding: 0 10px;
   color: #1e293b;
 }
-button[type="submit"] {
+button[type="submit"]:not([class]) {
   background: #3b82f6;
   color: #fff;
   border: none;
@@ -353,10 +382,10 @@ button[type="submit"] {
   cursor: pointer;
   transition: background 0.15s;
 }
-button[type="submit"]:hover {
+button[type="submit"]:not([class]):hover {
   background: #2563eb;
 }
-button[type="submit"]:disabled {
+button[type="submit"]:not([class]):disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

@@ -27,7 +27,7 @@ function MetricCard({
 
   return (
     <div
-      className={`group flex h-32 flex-col justify-between rounded-xl border border-outline-variant/30 bg-white p-6 transition-all hover:clinical-shadow-md clinical-shadow-sm relative overflow-hidden ${
+      className={`group relative flex h-32 flex-col justify-between overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_12px_24px_rgba(13,97,255,0.06)] ${
         errorBorder ? "border-l-4 border-l-error" : ""
       }`}
     >
@@ -162,19 +162,19 @@ export default function Dashboard() {
       {/* Header Section */}
       <div className="mb-8 flex items-end justify-between">
         <div>
-          <h2 className="font-headline-md text-headline-md text-on-surface">
+          <h2 className="mb-0 font-display-lg text-display-lg text-on-surface">
             Sales Overview
           </h2>
-          <p className="mt-1 text-on-surface-variant">
+          <p className="text-body-lg text-on-surface-variant">
             Real-time performance and inventory metrics.
           </p>
         </div>
         <div className="flex space-x-3">
-          <button className="flex items-center rounded-lg border border-outline-variant bg-surface px-4 py-2 text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-high">
+          <button className="flex items-center rounded-lg border border-primary px-4 py-2 font-semibold text-primary transition-all hover:bg-surface-container-high">
             <Icon name="calendar_today" className="mr-2 text-sm" />
             Last 7 Days
           </button>
-          <button className="flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-on-primary shadow-sm transition-colors hover:bg-primary-container">
+          <button className="flex items-center rounded-lg bg-primary px-4 py-2 font-semibold text-on-primary shadow-md transition-all hover:bg-primary-container">
             <Icon name="download" className="mr-2 text-sm" />
             Export Report
           </button>
@@ -223,7 +223,7 @@ export default function Dashboard() {
       {/* Middle Section */}
       <div className="mb-8 grid grid-cols-1 gap-card-gap lg:grid-cols-3">
         {/* Sales Chart */}
-        <div className="rounded-xl border border-outline-variant/30 bg-white p-6 clinical-shadow-sm lg:col-span-2">
+        <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_12px_24px_rgba(13,97,255,0.06)] lg:col-span-2">
           <div className="mb-6 flex items-center justify-between">
             <h3 className="text-body-lg font-bold">Weekly Sales Trends</h3>
             <div className="flex items-center space-x-4">
@@ -266,7 +266,7 @@ export default function Dashboard() {
         </div>
 
         {/* Top Sellers */}
-        <div className="rounded-xl border border-outline-variant/30 bg-white p-6 clinical-shadow-sm">
+        <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_12px_24px_rgba(13,97,255,0.06)]">
           <div className="mb-6 flex items-center justify-between">
             <h3 className="text-body-lg font-bold">Top Sellers</h3>
             <button className="text-xs font-bold text-primary hover:underline">
@@ -309,8 +309,8 @@ export default function Dashboard() {
       </div>
 
       {/* Recent Transactions */}
-      <div className="overflow-hidden rounded-xl border border-outline-variant/30 bg-white clinical-shadow-sm">
-        <div className="flex items-center justify-between border-b border-surface-container p-6">
+      <div className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-[0_4px_12px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_12px_24px_rgba(13,97,255,0.06)]">
+        <div className="flex items-center justify-between border-b border-outline-variant bg-surface-container-low/30 px-6 py-4">
           <h3 className="text-body-lg font-bold">Recent Transactions</h3>
           <div className="relative">
             <Icon
@@ -318,16 +318,16 @@ export default function Dashboard() {
               className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-on-surface-variant"
             />
             <input
-              className="rounded bg-surface-container-low py-1.5 pl-8 pr-3 text-xs focus:ring-1 focus:ring-primary"
+              className="rounded-lg border border-outline-variant bg-surface-container-low py-1.5 pl-8 pr-3 text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary"
               placeholder="Filter transactions..."
               type="text"
             />
           </div>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-left">
+          <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-surface-container bg-surface-container-low">
+              <tr className="bg-surface-container-low/50">
                 <th className="px-6 py-4 font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">
                   Order ID
                 </th>
@@ -346,7 +346,7 @@ export default function Dashboard() {
                 <th className="px-6 py-4" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-surface-container">
+            <tbody className="divide-y divide-outline-variant/30">
               <TransactionRow
                 id="#PF-9842"
                 initials="JD"

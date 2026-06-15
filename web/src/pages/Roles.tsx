@@ -2,10 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { listRoles, deleteRole, type Role } from "../api/roles";
 import { useToast } from "../context/ToastContext";
+import { Icon, PageHeader, Panel } from "../components/AdminComponents";
 
-function Icon({ name, className }: { name: string; className?: string }) {
-  return <span className={`material-symbols-outlined ${className ?? ""}`}>{name}</span>;
-}
 
 export default function Roles() {
   const { showToast } = useToast();
@@ -31,17 +29,17 @@ export default function Roles() {
 
   return (
     <div>
-      <div className="flex justify-between items-end mb-8">
-        <div>
-          <h2 className="font-display-lg text-display-lg text-on-surface">Roles</h2>
-          <p className="text-body-lg text-on-surface-variant">Define user roles and access levels</p>
-        </div>
-        <Link to="/app/roles/new" className="flex items-center px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary-container shadow-md transition-all">
-          <Icon name="add" className="mr-2" />New Role
-        </Link>
-      </div>
+      <PageHeader
+        title="Roles"
+        description="Define user roles and access levels"
+        actions={
+          <Link to="/app/roles/new" className="flex items-center px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary-container shadow-md transition-all">
+            <Icon name="add" className="mr-2" />New Role
+          </Link>
+        }
+      />
 
-      <div className="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.02)] border border-outline-variant overflow-hidden">
+      <Panel>
         <div className="overflow-x-auto">
           {loading ? (
             <div className="p-12 text-center"><p className="text-on-surface-variant">Loading roles...</p></div>
@@ -83,7 +81,7 @@ export default function Roles() {
             </table>
           )}
         </div>
-      </div>
+      </Panel>
     </div>
   );
 }

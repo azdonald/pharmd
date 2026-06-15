@@ -2,10 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { listLocations, deleteLocation, type Location } from "../api/locations";
 import { useToast } from "../context/ToastContext";
+import { Icon, PageHeader, Panel } from "../components/AdminComponents";
 
-function Icon({ name, className }: { name: string; className?: string }) {
-  return <span className={`material-symbols-outlined ${className ?? ""}`}>{name}</span>;
-}
 
 export default function Locations() {
   const { showToast } = useToast();
@@ -31,17 +29,17 @@ export default function Locations() {
 
   return (
     <div>
-      <div className="flex justify-between items-end mb-8">
-        <div>
-          <h2 className="font-display-lg text-display-lg text-on-surface">Locations</h2>
-          <p className="text-body-lg text-on-surface-variant">Manage pharmacy branches and facilities</p>
-        </div>
-        <Link to="/app/locations/new" className="flex items-center px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary-container shadow-md transition-all">
-          <Icon name="add" className="mr-2" />New Location
-        </Link>
-      </div>
+      <PageHeader
+        title="Locations"
+        description="Manage pharmacy branches and facilities"
+        actions={
+          <Link to="/app/locations/new" className="flex items-center px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary-container shadow-md transition-all">
+            <Icon name="add" className="mr-2" />New Location
+          </Link>
+        }
+      />
 
-      <div className="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.02)] border border-outline-variant overflow-hidden">
+      <Panel>
         <div className="overflow-x-auto">
           {loading ? (
             <div className="p-12 text-center"><p className="text-on-surface-variant">Loading locations...</p></div>
@@ -83,7 +81,7 @@ export default function Locations() {
             </table>
           )}
         </div>
-      </div>
+      </Panel>
     </div>
   );
 }

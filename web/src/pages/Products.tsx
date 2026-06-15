@@ -2,10 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { listProducts, listCategories, deleteProduct, type Product, type ProductCategory } from "../api/products";
 import { useToast } from "../context/ToastContext";
+import { Icon, PageHeader, Panel } from "../components/AdminComponents";
 
-function Icon({ name, className }: { name: string; className?: string }) {
-  return <span className={`material-symbols-outlined ${className ?? ""}`}>{name}</span>;
-}
 
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -59,13 +57,10 @@ export default function Products() {
 
   return (
     <div>
-      {/* Header */}
-      <div className="flex justify-between items-end mb-8">
-        <div>
-          <h2 className="font-display-lg text-display-lg text-on-surface">Products</h2>
-          <p className="text-body-lg text-on-surface-variant">Manage medication and product catalog</p>
-        </div>
-        <div className="flex space-x-3">
+      <PageHeader
+        title="Products"
+        description="Manage medication and product catalog"
+        actions={
           <Link
             to="/app/products/new"
             className="flex items-center px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary-container shadow-md transition-all"
@@ -73,8 +68,8 @@ export default function Products() {
             <Icon name="add" className="mr-2" />
             New Product
           </Link>
-        </div>
-      </div>
+        }
+      />
 
       {/* Search & Filters */}
       <form onSubmit={handleSearch} className="mb-8 flex gap-3 items-end">
@@ -105,7 +100,7 @@ export default function Products() {
       </form>
 
       {/* Table */}
-      <div className="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.02)] border border-outline-variant overflow-hidden">
+      <Panel>
         <div className="overflow-x-auto">
           {loading ? (
             <div className="p-12 text-center">
@@ -165,7 +160,6 @@ export default function Products() {
             </table>
           )}
         </div>
-
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="px-6 py-4 border-t border-outline-variant flex justify-between items-center bg-surface-container-low/10">
@@ -197,7 +191,7 @@ export default function Products() {
             </div>
           </div>
         )}
+      </Panel>
       </div>
-    </div>
   );
 }

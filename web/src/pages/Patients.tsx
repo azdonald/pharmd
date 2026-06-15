@@ -2,10 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { listPatients, deletePatient, type Patient } from "../api/patients";
 import { useToast } from "../context/ToastContext";
+import { Icon, PageHeader, Panel } from "../components/AdminComponents";
 
-function Icon({ name, className }: { name: string; className?: string }) {
-  return <span className={`material-symbols-outlined ${className ?? ""}`}>{name}</span>;
-}
 
 export default function Patients() {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -48,15 +46,15 @@ export default function Patients() {
 
   return (
     <div>
-      <div className="flex justify-between items-end mb-8">
-        <div>
-          <h2 className="font-display-lg text-display-lg text-on-surface">Patients</h2>
-          <p className="text-body-lg text-on-surface-variant">Manage patient records and medical history</p>
-        </div>
-        <Link to="/app/patients/new" className="flex items-center px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary-container shadow-md transition-all">
-          <Icon name="add" className="mr-2" />New Patient
-        </Link>
-      </div>
+      <PageHeader
+        title="Patients"
+        description="Manage patient records and medical history"
+        actions={
+          <Link to="/app/patients/new" className="flex items-center px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary-container shadow-md transition-all">
+            <Icon name="add" className="mr-2" />New Patient
+          </Link>
+        }
+      />
 
       <form onSubmit={handleSearch} className="mb-8 max-w-md">
         <div className="relative">
@@ -67,7 +65,7 @@ export default function Patients() {
         </div>
       </form>
 
-      <div className="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.02)] border border-outline-variant overflow-hidden">
+      <Panel>
         <div className="overflow-x-auto">
           {loading ? (
             <div className="p-12 text-center"><p className="text-on-surface-variant">Loading patients...</p></div>
@@ -135,7 +133,7 @@ export default function Patients() {
             </div>
           </div>
         )}
-      </div>
+      </Panel>
     </div>
   );
 }

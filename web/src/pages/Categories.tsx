@@ -1,10 +1,8 @@
 import { useEffect, useState, type ReactElement } from "react";
 import { listCategories, deleteCategory, createCategory, type ProductCategory } from "../api/products";
 import { useToast } from "../context/ToastContext";
+import { Icon, PageHeader, Panel } from "../components/AdminComponents";
 
-function Icon({ name, className }: { name: string; className?: string }) {
-  return <span className={`material-symbols-outlined ${className ?? ""}`}>{name}</span>;
-}
 
 export default function Categories() {
   const { showToast } = useToast();
@@ -82,12 +80,10 @@ export default function Categories() {
 
   return (
     <div>
-      <div className="flex justify-between items-end mb-8">
-        <div>
-          <h2 className="font-display-lg text-display-lg text-on-surface">Product Categories</h2>
-          <p className="text-body-lg text-on-surface-variant">Organize products into categories and subcategories</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Product Categories"
+        description="Organize products into categories and subcategories"
+      />
 
       {/* Add form */}
       <form onSubmit={handleCreate} className="mb-8 p-4 rounded-xl border border-outline-variant bg-surface-container-lowest">
@@ -117,7 +113,7 @@ export default function Categories() {
       </form>
 
       {/* Table */}
-      <div className="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.02)] border border-outline-variant overflow-hidden">
+      <Panel>
         <div className="overflow-x-auto">
           {loading ? (
             <div className="p-12 text-center"><p className="text-on-surface-variant">Loading categories...</p></div>
@@ -137,7 +133,7 @@ export default function Categories() {
             </table>
           )}
         </div>
-      </div>
+      </Panel>
     </div>
   );
 }

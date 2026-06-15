@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { listPermissions, type Permission } from "../api/permissions";
+import { PageHeader, Panel } from "../components/AdminComponents";
 
 export default function Permissions() {
   const [permissions, setPermissions] = useState<Permission[]>([]);
@@ -14,12 +15,12 @@ export default function Permissions() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h2 className="font-display-lg text-display-lg text-on-surface">Permissions</h2>
-        <p className="text-body-lg text-on-surface-variant">System permissions and access control rules</p>
-      </div>
+      <PageHeader
+        title="Permissions"
+        description="System permissions and access control rules"
+      />
 
-      <div className="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.02)] border border-outline-variant overflow-hidden">
+      <Panel>
         <div className="overflow-x-auto">
           {loading ? (
             <div className="p-12 text-center"><p className="text-on-surface-variant">Loading permissions...</p></div>
@@ -46,7 +47,7 @@ export default function Permissions() {
             </table>
           )}
         </div>
-      </div>
+      </Panel>
     </div>
   );
 }
