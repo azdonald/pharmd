@@ -113,7 +113,7 @@ export default function PatientForm() {
         </div>
 
         <div className="form-actions">
-          <button type="submit" className="btn" disabled={saving}>{saving ? "Saving..." : "Save Patient"}</button>
+          <button type="submit" className="btn-sky-action" disabled={saving}>{saving ? "Saving..." : "Save Patient"}</button>
         </div>
       </form>
     </div>

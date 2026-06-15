@@ -125,7 +125,7 @@ export default function PatientDetail() {
             <option value="Severe">Severe</option>
           </select>
         </label>
-        <button type="submit" className="btn">Add</button>
+        <button type="submit" className="btn-sky-action">Add</button>
       </form>
       {allergies.length === 0 ? <p>No allergies recorded.</p> : (
         <table>
@@ -149,7 +149,7 @@ export default function PatientDetail() {
           Condition
           <input value={newCondition} onChange={e => setNewCondition(e.target.value)} required />
         </label>
-        <button type="submit" className="btn">Add</button>
+        <button type="submit" className="btn-sky-action">Add</button>
       </form>
       {conditions.length === 0 ? <p>No conditions recorded.</p> : (
         <table>

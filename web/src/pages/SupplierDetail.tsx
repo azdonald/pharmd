@@ -117,7 +117,7 @@ export default function SupplierDetail() {
           ))}
           <div style={{ display: "flex", gap: 8 }}>
             <button onClick={addPriceRow}>Add Product</button>
-            <button onClick={handleSavePrices}>Save Prices</button>
+            <button className="btn-sky-action" onClick={handleSavePrices}>Save Prices</button>
             <button onClick={() => { setEditing(false); setNewPrices({}); }}>Cancel</button>
           </div>
         </div>

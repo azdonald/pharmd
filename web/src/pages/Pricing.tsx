@@ -110,8 +110,7 @@ export default function Pricing() {
               <input type="number" min={0} step={0.01} value={formSelling} onChange={e => setFormSelling(e.target.value)} required
                 className="w-32 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none" />
             </div>
-            <button type="submit"
-              className="px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary-container transition-all">Save</button>
+            <button type="submit" className="btn-sky-action">Save</button>
           </div>
         </form>
       )}

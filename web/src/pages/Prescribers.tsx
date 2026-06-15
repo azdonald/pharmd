@@ -120,8 +120,7 @@ export default function Prescribers() {
             </div>
           </div>
           <div className="flex gap-2">
-            <button type="submit"
-              className="px-4 py-2 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary-container transition-all">{editId ? "Update" : "Create"}</button>
+            <button type="submit" className="btn-sky-action">{editId ? "Update" : "Create"}</button>
             <button type="button" onClick={resetForm}
               className="px-4 py-2 border border-outline-variant rounded-lg text-on-surface hover:bg-surface-container-high transition-all">Cancel</button>
           </div>

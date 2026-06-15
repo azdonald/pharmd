@@ -268,6 +268,11 @@ a:not([class]):hover { text-decoration: underline; }
   text-decoration: none;
   box-shadow: 0 8px 18px rgba(14, 165, 233, 0.24);
 }
+.btn-sky-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  box-shadow: none;
+}
 
 /* Search bar wrapper */
 .search-bar {
@@ -394,19 +399,22 @@ form:not([class]) legend,
   color: #1e293b;
 }
 button[type="submit"]:not([class]) {
-  background: #3b82f6;
-  color: #fff;
-  border: none;
+  background: #38bdf8;
+  color: #ffffff;
+  border: 1px solid #38bdf8;
   padding: 10px 24px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   font-family: inherit;
   cursor: pointer;
-  transition: background 0.15s;
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.24);
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
 button[type="submit"]:not([class]):hover {
-  background: #2563eb;
+  background: #0ea5e9;
+  border-color: #0ea5e9;
+  box-shadow: 0 8px 18px rgba(14, 165, 233, 0.24);
 }
 button[type="submit"]:not([class]):disabled {
   opacity: 0.5;
