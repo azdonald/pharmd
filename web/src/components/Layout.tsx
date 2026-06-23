@@ -7,7 +7,6 @@ const navItems: { to: string; label: string; icon: string }[] = [
   { to: "/app/patients", label: "Patients", icon: "patient_list" },
   { to: "/app/products", label: "Products", icon: "medication" },
   { to: "/app/inventory", label: "Inventory", icon: "inventory_2" },
-  { to: "/app/suppliers", label: "Suppliers", icon: "local_shipping" },
   { to: "/app/purchases", label: "Purchases", icon: "receipt_long" },
   { to: "/app/prescriptions", label: "Prescriptions", icon: "description" },
   { to: "/app/dispensing", label: "Dispensing", icon: "pill" },
@@ -24,6 +23,7 @@ const settingsItems: { to: string; label: string; icon: string }[] = [
   { to: "/app/pricing", label: "Pricing", icon: "attach_money" },
   { to: "/app/discounts", label: "Discounts", icon: "percent" },
   { to: "/app/prescribers", label: "Prescribers", icon: "stethoscope" },
+  { to: "/app/suppliers", label: "Suppliers", icon: "local_shipping" },
 ];
 
 function Icon({ name, className }: { name: string; className?: string }) {
