@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/azdonald/pharmd/backend/models"
@@ -28,6 +29,7 @@ func (s *RoleService) GetRoleByID(ctx context.Context, id string) (*models.Role,
 func (s *RoleService) CreateRole(ctx context.Context, role models.Role) (*models.Role, error) {
 	orgID := ctx.Value("organisation_id").(string)
 	role.ID = ulid.Make().String()
+	role.Slug = strings.ToLower(strings.ReplaceAll(role.Name, " ", "_"))
 	role.OrganisationID = orgID
 	role.CreatedAt = time.Now()
 	role.UpdatedAt = time.Now()
