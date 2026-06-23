@@ -73,17 +73,41 @@ func (s *POSService) CreateSale(ctx context.Context, sale models.Sale, items []m
 }
 
 func (s *POSService) VoidSale(ctx context.Context, id, userID string) (*models.Sale, error) {
-	if err := s.repo.UpdateSale(ctx, id, "voided", userID, ""); err != nil {
+	existing, _, _, err := s.repo.GetSaleByID(ctx, id)
+	if err != nil {
 		return nil, err
 	}
+
+	if existing.Status == "completed" {
+		if err := s.repo.RestoreSaleInventory(ctx, id, "voided", userID); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := s.repo.UpdateSale(ctx, id, "voided", userID, ""); err != nil {
+			return nil, err
+		}
+	}
+
 	rx, _, _, err := s.repo.GetSaleByID(ctx, id)
 	return rx, err
 }
 
 func (s *POSService) RefundSale(ctx context.Context, id, userID string) (*models.Sale, error) {
-	if err := s.repo.UpdateSale(ctx, id, "refunded", userID, ""); err != nil {
+	existing, _, _, err := s.repo.GetSaleByID(ctx, id)
+	if err != nil {
 		return nil, err
 	}
+
+	if existing.Status == "completed" {
+		if err := s.repo.RestoreSaleInventory(ctx, id, "refunded", userID); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := s.repo.UpdateSale(ctx, id, "refunded", userID, ""); err != nil {
+			return nil, err
+		}
+	}
+
 	rx, _, _, err := s.repo.GetSaleByID(ctx, id)
 	return rx, err
 }
@@ -98,11 +122,13 @@ func (s *POSService) HoldSale(ctx context.Context, id string) (*models.Sale, err
 
 func (s *POSService) RecordPayments(ctx context.Context, saleID string, payments []models.Payment) (*models.Sale, error) {
 	now := time.Now()
+	userID := ctx.Value("user_id").(string)
 	for i := range payments {
 		payments[i].ID = uuid.New().String()
 	}
 
-	if err := s.repo.RecordPayments(ctx, saleID, payments); err != nil {
+	sale, items, _, err := s.repo.GetSaleByID(ctx, saleID)
+	if err != nil {
 		return nil, err
 	}
 
@@ -111,17 +137,12 @@ func (s *POSService) RecordPayments(ctx context.Context, saleID string, payments
 		totalPaid += p.Amount
 	}
 
-	sale, _, _, err := s.repo.GetSaleByID(ctx, saleID)
-	if err != nil {
-		return nil, err
-	}
-
 	change := totalPaid - sale.GrandTotal
 	if change < 0 {
 		change = 0
 	}
 
-	if err := s.repo.UpdateSalePaid(ctx, saleID, totalPaid, change); err != nil {
+	if err := s.repo.CompleteSale(ctx, saleID, *sale, items, payments, userID, totalPaid, change); err != nil {
 		return nil, err
 	}
 

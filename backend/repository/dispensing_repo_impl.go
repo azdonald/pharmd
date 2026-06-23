@@ -109,7 +109,15 @@ func (r *DispensingRepoImpl) GetByID(ctx context.Context, id string) (*models.Di
 
 func (r *DispensingRepoImpl) Create(ctx context.Context, dr models.DispenseRecord) error {
 	orgID := ctx.Value("organisation_id").(string)
-	_, err := r.db.ExecContext(ctx,
+	userID := ctx.Value("user_id").(string)
+
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.ExecContext(ctx,
 		`INSERT INTO dispensing_records (id, organisation_id, prescription_id, prescription_item_id,
 		                                  patient_id, product_id, location_id,
 		                                  quantity_dispensed, quantity_prescribed,
@@ -123,8 +131,15 @@ func (r *DispensingRepoImpl) Create(ctx context.Context, dr models.DispenseRecor
 		dr.PharmacistID, dr.TechnicianID, dr.Status, dr.Notes,
 		dr.WitnessName, dr.IsControlled, dr.DispensedAt,
 		dr.CreatedAt, dr.UpdatedAt,
-	)
-	return err
+	); err != nil {
+		return err
+	}
+
+	if err := deductFEFO(ctx, tx, orgID, dr.LocationID, dr.ProductID, dr.QuantityDispensed, "dispense", "dispensing", dr.ID, userID); err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
 
 func (r *DispensingRepoImpl) Update(ctx context.Context, id string, dr models.DispenseRecord) error {

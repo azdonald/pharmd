@@ -15,6 +15,8 @@ type POSRepository interface {
 	UpdateSale(ctx context.Context, id, status, voidedBy, notes string) error
 	RecordPayments(ctx context.Context, saleID string, payments []models.Payment) error
 	UpdateSalePaid(ctx context.Context, saleID string, paidAmount, changeAmount float64) error
+	CompleteSale(ctx context.Context, saleID string, sale models.Sale, items []models.SaleItem, payments []models.Payment, userID string, totalPaid, changeAmount float64) error
+	RestoreSaleInventory(ctx context.Context, saleID, status, voidedBy string) error
 	GetDailySummary(ctx context.Context, locationID, date string) (*models.DailySummary, []struct{ Method string; Total float64 }, error)
 	UpsertDailySummary(ctx context.Context, summary models.DailySummary) error
 	CloseDay(ctx context.Context, id, closedBy, notes string) error
@@ -220,6 +222,65 @@ func (r *POSRepoImpl) UpdateSalePaid(ctx context.Context, saleID string, paidAmo
 		paidAmount, changeAmount, saleID, orgID,
 	)
 	return err
+}
+
+func (r *POSRepoImpl) CompleteSale(ctx context.Context, saleID string, sale models.Sale, items []models.SaleItem, payments []models.Payment, userID string, totalPaid, changeAmount float64) error {
+	orgID := ctx.Value("organisation_id").(string)
+
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	for _, p := range payments {
+		if _, err := tx.ExecContext(ctx,
+			`INSERT INTO payments (id, organisation_id, sale_id, method, amount, reference)
+			 VALUES (?, ?, ?, ?, ?, NULLIF(?,''))`,
+			p.ID, orgID, saleID, p.Method, p.Amount, p.Reference,
+		); err != nil {
+			return err
+		}
+	}
+
+	for _, item := range items {
+		if err := deductFEFO(ctx, tx, orgID, sale.LocationID, item.ProductID, item.Quantity, "sale", "sale", saleID, userID); err != nil {
+			return err
+		}
+	}
+
+	if _, err := tx.ExecContext(ctx,
+		"UPDATE sales SET paid_amount=?, change_amount=?, status='completed', updated_at=NOW() WHERE id=? AND organisation_id=?",
+		totalPaid, changeAmount, saleID, orgID,
+	); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (r *POSRepoImpl) RestoreSaleInventory(ctx context.Context, saleID, status, voidedBy string) error {
+	orgID := ctx.Value("organisation_id").(string)
+
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.ExecContext(ctx,
+		`UPDATE sales SET status=?, voided_by=NULLIF(?,''), voided_at=NOW(), updated_at=NOW()
+		 WHERE id=? AND organisation_id=? AND status='completed'`,
+		status, voidedBy, saleID, orgID,
+	); err != nil {
+		return err
+	}
+
+	if err := restoreMovements(ctx, tx, orgID, "sale", "sale", saleID, voidedBy); err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
 
 func (r *POSRepoImpl) GetDailySummary(ctx context.Context, locationID, date string) (*models.DailySummary, []struct{ Method string; Total float64 }, error) {

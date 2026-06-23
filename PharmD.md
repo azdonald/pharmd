@@ -35,11 +35,14 @@ Dispensing exposes drug-interaction and allergy-check endpoints, but `CheckInter
 
 Recommendation: Treat real clinical checks as P0 before any production use. Start with a clear rules table for allergies and contraindications, then later integrate a drug knowledge source. The UI should clearly distinguish "not checked" from "checked and no issues found."
 
-### 2. Dispensing does not appear to reduce inventory
+### 2. Dispensing and POS now deduct inventory (fixed June 2026)
 
-Dispense records are created, but the dispensing service does not deduct stock batches, enforce available quantity, or select batches by expiry/FEFO. POS sale creation also records sale items but does not appear to reduce inventory.
+Dispensing (`backend/repository/dispensing_repo_impl.go:110`) and POS payment completion (`backend/repository/pos_repo_impl.go:227`) now use a shared FEFO deduction helper (`backend/repository/inventory_helper.go:11`) that selects batches with remaining stock ordered by earliest expiry, deducts quantity across batches with `SELECT ... FOR UPDATE` row locking, and creates stock movements — all inside the same database transaction. Inventory is also restored on void/refund of completed sales (`RestoreSaleInventory`, `pos_repo_impl.go:262`).
 
-Recommendation: Make inventory movements the single source of truth for every stock-affecting workflow. Dispensing, POS, receiving, adjustments, voids, refunds, and counts should all create stock movements inside database transactions.
+Remaining gaps:
+- Dispensing void/refund does not yet restore inventory.
+- The POS frontend does not display available stock at the point of adding items to the cart.
+- The stock count FEFO helper lives in the `repository` package rather than `service`; consider elevating to a service-layer concern once cross-repository transactions are supported.
 
 ### 3. Audit/compliance is not yet system-wide
 
@@ -151,6 +154,33 @@ The current app has a strong foundation, but these features are still missing or
 - Keep dashboards and reports derived from real data.
 - Avoid expanding surface area until current workflows are correct, testable, and reversible.
 
-## Current Assessment
+## Workflows
 
-PharmD is best described today as a broad alpha/MVP foundation for a pharmacy management system. It has many of the right modules and a sensible architecture, but the highest-risk pharmacy behaviors need hardening before it should be treated as production-ready. The most valuable next step is not adding more screens; it is making auth, permissions, inventory, dispensing, POS, audit, and clinical safety dependable end to end.
+### OTC Medicine Purchase (Customer Walk-in)
+
+1. Customer approaches the POS counter or consultation window.
+2. Pharmacist or staff confirms the OTC product is appropriate (no prescription needed, no clinical red flags).
+3. Staff selects or creates the customer as a patient record (name, date of birth, phone number at minimum; may link to existing profile or create a walk-in guest entry).
+4. Staff adds the OTC product(s) to the POS sale — the system checks available stock in real time:
+   - If insufficient stock, the staff is notified and can offer an alternative or rain check.
+   - If stock is available, the system reserves the quantity (or deducts on completion).
+5. Staff applies any relevant discounts (loyalty, promotion, senior, or manual price override with manager approval if needed).
+6. Staff completes payment — the system supports cash, card, or other tender types and records the transaction.
+7. System generates a receipt (printed or digital) and updates inventory with a deduction from the selected stock batch (FEFO-based if available).
+8. Stock movement record is created with type `sale`, linking to the sale item.
+9. System records the sale in POS history with status `completed`.
+10. Customer receives the product and leaves. If a consultation was provided (e.g., recommendation for a cough medicine), a brief note can optionally be attached to the patient record.
+
+### Products vs Inventory
+
+Products and inventory are separate but related concepts in PharmD. A **product** is a record in the master catalog — drug name, brand, generic name, strength, form, barcode, NDC, manufacturer, and classification (OTC, prescription, controlled). It represents *what* can be stocked, but holds no quantity, location, cost, or expiry information.
+
+**Inventory** is the physical stock-on-hand of a product at a specific location, tracked per batch. Each batch record sits in `stock_batches` with a `product_id` foreign key to `products`, plus `location_id`, `batch_number`, `quantity`, `remaining_qty`, `unit_cost`, `selling_price`, `manufacturing_date`, and `expiry_date`. A single product can have many stock batches across multiple locations — e.g., an organisation has aspirin in the catalog once, but may have three batches at one location and two at another.
+
+The `stock_movements` table provides the audit trail for every quantity change on any batch, recording the type (`receipt`, `sale`, `adjustment`, `count_correction`, `dispense`, `transfer`), the reference document, who performed it, and a timestamp.
+
+**Why cost isn't on the product**: A product's cost varies per purchase — the same ibuprofen can be bought from Supplier A at $0.05/tablet and Supplier B at $0.06/tablet, on different purchase orders, at different times. Cost is a property of each received batch (`stock_batches.unit_cost`), not of the catalog record. Selling price can also vary by batch and by location — there is a separate `product_prices` table keyed by `(product_id, location_id)` for location-specific standard pricing, but the batch-level `selling_price` allows per-lot pricing (e.g., old stock marked down before expiry). The product catalog stays pure: it defines *what* the drug is (name, strength, form, classification, barcode), not *what it costs* or *where it lives*.
+
+**How selling OTC drugs now reduces inventory**: When payments are recorded for a sale (`POSService.RecordPayments`), the service calls `POSRepoImpl.CompleteSale` which records payments, deducts from stock batches (FEFO — earliest expiry first), creates `sale`-type stock movements, and marks the sale `completed` — all in a single transaction. The same pattern applies to dispensing (`DispensingRepoImpl.Create` now deducts within a transaction with `dispense`-type movements). On void or refund of a completed sale, `RestoreSaleInventory` reverses the deductions. If stock is insufficient at payment time, the transaction rolls back and the error propagates to the caller.
+
+**Key distinction**: Product management (CRUD on the catalog) is organisation-wide — create a product once, use it everywhere. Inventory management is per-location and per-batch — you receive, adjust, dispense, and sell physical stock against specific batches. The product catalog API lives at `/products` with `products.*` permissions; the stock API lives at `/inventory` with `inventory.*` permissions. The two repositories and services are completely separate — `ProductRepository` works only with `products` and `generic_substitutions` tables, while `InventoryRepository` works with `stock_batches`, `stock_movements`, and joins to `products` for display.
