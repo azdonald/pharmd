@@ -37,6 +37,7 @@ type RoleRepository interface {
 	DeleteRole(ctx context.Context, id string) error
 	GetRolePermissions(ctx context.Context, roleID string) ([]string, error)
 	SetRolePermissions(ctx context.Context, roleID string, permissionIDs []string) error
+	CloneSystemRolesForOrg(ctx context.Context, orgID string) (map[string]string, error)
 }
 
 type PermissionRepository interface {

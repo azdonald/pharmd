@@ -17,6 +17,7 @@ type AuthService struct {
 	userRepo     repository.UserRepository
 	locationRepo repository.LocationRepository
 	userRoleRepo repository.UserRoleRepository
+	roleRepo     repository.RoleRepository
 }
 
 func NewAuthService(
@@ -24,12 +25,14 @@ func NewAuthService(
 	userRepo repository.UserRepository,
 	locationRepo repository.LocationRepository,
 	userRoleRepo repository.UserRoleRepository,
+	roleRepo repository.RoleRepository,
 ) AuthServiceManager {
 	return &AuthService{
 		authRepo:     authRepo,
 		userRepo:     userRepo,
 		locationRepo: locationRepo,
 		userRoleRepo: userRoleRepo,
+		roleRepo:     roleRepo,
 	}
 }
 
@@ -79,7 +82,16 @@ func (s *AuthService) Register(ctx context.Context, org models.Organisation, use
 		return nil, err
 	}
 
-	if err := s.userRoleRepo.AssignRoleToUser(ctx, user.ID, "R001", org.ID); err != nil {
+	mapping, err := s.roleRepo.CloneSystemRolesForOrg(ctx, org.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	adminID, ok := mapping["R001"]
+	if !ok {
+		return nil, errors.New("failed to clone admin role")
+	}
+	if err := s.userRoleRepo.AssignRoleToUser(ctx, user.ID, adminID, org.ID); err != nil {
 		return nil, err
 	}
 

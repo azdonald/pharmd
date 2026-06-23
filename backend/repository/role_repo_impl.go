@@ -24,9 +24,13 @@ func (r *RoleRepoImpl) ListRoles(ctx context.Context, page, limit int) ([]models
 
 	rows, err := r.db.QueryContext(ctx,
 		`SELECT id, name, slug, description, organisation_id, is_system, created_at, updated_at
-		 FROM roles WHERE (organisation_id = ? OR is_system = true) AND deleted_at IS NULL
-		 ORDER BY is_system DESC, name ASC LIMIT ? OFFSET ?`,
-		orgID, limit, offset,
+		 FROM roles
+		 WHERE deleted_at IS NULL
+		   AND (organisation_id = ?
+		     OR (is_system = true AND organisation_id IS NULL
+		         AND NOT EXISTS (SELECT 1 FROM roles sub WHERE sub.slug = roles.slug AND sub.organisation_id = ?)))
+		 ORDER BY name ASC LIMIT ? OFFSET ?`,
+		orgID, orgID, limit, offset,
 	)
 	if err != nil {
 		return nil, err
@@ -103,6 +107,81 @@ func (r *RoleRepoImpl) GetRolePermissions(ctx context.Context, roleID string) ([
 		ids = append(ids, id)
 	}
 	return ids, nil
+}
+
+func (r *RoleRepoImpl) CloneSystemRolesForOrg(ctx context.Context, orgID string) (map[string]string, error) {
+	rows, err := r.db.QueryContext(ctx,
+		`SELECT id, name, slug, description FROM roles WHERE is_system = true AND organisation_id IS NULL AND deleted_at IS NULL`,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	type systemRole struct {
+		ID, Name, Slug, Desc string
+	}
+	var systemRoles []systemRole
+	for rows.Next() {
+		var sr systemRole
+		if err := rows.Scan(&sr.ID, &sr.Name, &sr.Slug, &sr.Desc); err != nil {
+			return nil, err
+		}
+		systemRoles = append(systemRoles, sr)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	now := time.Now()
+	mapping := make(map[string]string, len(systemRoles))
+	for _, sr := range systemRoles {
+		newID := ulid.Make().String()
+		mapping[sr.ID] = newID
+		if _, err := tx.ExecContext(ctx,
+			`INSERT INTO roles (id, name, slug, description, organisation_id, is_system, created_at, updated_at)
+			 VALUES (?, ?, ?, ?, ?, false, ?, ?)`,
+			newID, sr.Name, sr.Slug, sr.Desc, orgID, now, now,
+		); err != nil {
+			return nil, fmt.Errorf("clone role %s: %w", sr.Name, err)
+		}
+
+		permRows, err := r.db.QueryContext(ctx,
+			`SELECT permission_id FROM role_permissions WHERE role_id = ? AND deleted_at IS NULL`, sr.ID,
+		)
+		if err != nil {
+			return nil, err
+		}
+		var permIDs []string
+		for permRows.Next() {
+			var pid string
+			if err := permRows.Scan(&pid); err != nil {
+				permRows.Close()
+				return nil, err
+			}
+			permIDs = append(permIDs, pid)
+		}
+		permRows.Close()
+
+		for _, pid := range permIDs {
+			rpID := ulid.Make().String()
+			if _, err := tx.ExecContext(ctx,
+				`INSERT INTO role_permissions (id, role_id, permission_id, created_at, updated_at)
+				 VALUES (?, ?, ?, ?, ?)`,
+				rpID, newID, pid, now, now,
+			); err != nil {
+				return nil, fmt.Errorf("clone permission %s for role %s: %w", pid, sr.Name, err)
+			}
+		}
+	}
+
+	return mapping, tx.Commit()
 }
 
 func (r *RoleRepoImpl) SetRolePermissions(ctx context.Context, roleID string, permissionIDs []string) error {

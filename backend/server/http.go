@@ -137,7 +137,7 @@ func initDependencies(database *sql.DB) *app {
 	productRepo := repository.NewProductRepositoryImpl(database)
 	permRepo := repository.NewPermissionRepositoryImpl(database)
 
-	authSvc := service.NewAuthService(authRepo, userRepo, locationRepo, userRoleRepo)
+	authSvc := service.NewAuthService(authRepo, userRepo, locationRepo, userRoleRepo, roleRepo)
 	userSvc := service.NewUserService(userRepo)
 	roleSvc := service.NewRoleService(roleRepo)
 	permSvc := service.NewPermissionService(permRepo)
