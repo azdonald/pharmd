@@ -24,38 +24,46 @@ func (r *AuthRepoImpl) CreateOrganisation(ctx context.Context, org models.Organi
 }
 
 func (r *AuthRepoImpl) CreateUser(ctx context.Context, user models.User) error {
+	var locID interface{}
+	if user.LocationID != "" {
+		locID = user.LocationID
+	}
 	_, err := r.db.ExecContext(ctx,
 		`INSERT INTO users (id, first_name, last_name, email, password, organisation_id, location_id, is_active, created_at, updated_at)
 		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		user.ID, user.FirstName, user.LastName, user.Email, user.Password,
-		user.OrganisationID, user.LocationID, user.IsActive, user.CreatedAt, user.UpdatedAt,
+		user.OrganisationID, locID, user.IsActive, user.CreatedAt, user.UpdatedAt,
 	)
 	return err
 }
 
 func (r *AuthRepoImpl) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
 	user := &models.User{}
+	var locID sql.NullString
 	err := r.db.QueryRowContext(ctx,
 		`SELECT id, first_name, last_name, email, password, organisation_id, location_id, is_active, created_at, updated_at
 		 FROM users WHERE email = ? AND deleted_at IS NULL`, email,
 	).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Password,
-		&user.OrganisationID, &user.LocationID, &user.IsActive, &user.CreatedAt, &user.UpdatedAt)
+		&user.OrganisationID, &locID, &user.IsActive, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
+	user.LocationID = locID.String
 	return user, nil
 }
 
 func (r *AuthRepoImpl) GetUserByID(ctx context.Context, id string) (*models.User, error) {
 	user := &models.User{}
+	var locID sql.NullString
 	err := r.db.QueryRowContext(ctx,
 		`SELECT id, first_name, last_name, email, password, organisation_id, location_id, is_active, created_at, updated_at
 		 FROM users WHERE id = ? AND deleted_at IS NULL`, id,
 	).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Password,
-		&user.OrganisationID, &user.LocationID, &user.IsActive, &user.CreatedAt, &user.UpdatedAt)
+		&user.OrganisationID, &locID, &user.IsActive, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
+	user.LocationID = locID.String
 	return user, nil
 }
 

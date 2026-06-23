@@ -34,10 +34,12 @@ func (r *UserRepoImpl) ListUsers(ctx context.Context, page, limit int) ([]models
 	var users []models.User
 	for rows.Next() {
 		var u models.User
+		var locID sql.NullString
 		if err := rows.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Email,
-			&u.OrganisationID, &u.LocationID, &u.IsActive, &u.CreatedAt, &u.UpdatedAt); err != nil {
+			&u.OrganisationID, &locID, &u.IsActive, &u.CreatedAt, &u.UpdatedAt); err != nil {
 			return nil, err
 		}
+		u.LocationID = locID.String
 		users = append(users, u)
 	}
 	return users, nil
@@ -46,14 +48,16 @@ func (r *UserRepoImpl) ListUsers(ctx context.Context, page, limit int) ([]models
 func (r *UserRepoImpl) GetUserByID(ctx context.Context, id string) (*models.User, error) {
 	orgID := ctx.Value("organisation_id").(string)
 	user := &models.User{}
+	var locID sql.NullString
 	err := r.db.QueryRowContext(ctx,
 		`SELECT id, first_name, last_name, email, password, organisation_id, location_id, is_active, created_at, updated_at
 		 FROM users WHERE id = ? AND organisation_id = ? AND deleted_at IS NULL`, id, orgID,
 	).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Password,
-		&user.OrganisationID, &user.LocationID, &user.IsActive, &user.CreatedAt, &user.UpdatedAt)
+		&user.OrganisationID, &locID, &user.IsActive, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
+	user.LocationID = locID.String
 	return user, nil
 }
 
@@ -61,11 +65,15 @@ func (r *UserRepoImpl) CreateUser(ctx context.Context, user models.User) error {
 	orgID := ctx.Value("organisation_id").(string)
 	user.OrganisationID = orgID
 
+	var locID interface{}
+	if user.LocationID != "" {
+		locID = user.LocationID
+	}
 	_, err := r.db.ExecContext(ctx,
 		`INSERT INTO users (id, first_name, last_name, email, password, organisation_id, location_id, is_active, created_at, updated_at)
 		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		user.ID, user.FirstName, user.LastName, user.Email, user.Password,
-		user.OrganisationID, user.LocationID, user.IsActive, user.CreatedAt, user.UpdatedAt,
+		user.OrganisationID, locID, user.IsActive, user.CreatedAt, user.UpdatedAt,
 	)
 	return err
 }
