@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getUser, createUser, updateUser, assignUserRole } from "../api/users";
 import { listRoles, type Role } from "../api/roles";
+import { listLocations, type Location } from "../api/locations";
 import { useToast } from "../context/ToastContext";
 
 export default function UserForm() {
@@ -11,7 +12,10 @@ export default function UserForm() {
 
   const [form, setForm] = useState({ first_name: "", last_name: "", email: "" });
   const [roleId, setRoleId] = useState("");
+  const [locationId, setLocationId] = useState("");
+  const [superAdmin, setSuperAdmin] = useState(false);
   const [roles, setRoles] = useState<Role[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
   const [saving, setSaving] = useState(false);
   const { showToast } = useToast();
 
@@ -19,22 +23,37 @@ export default function UserForm() {
     setForm({ ...form, [field]: e.target.value });
 
   useEffect(() => {
-    listRoles().then(res => setRoles(res.data)).catch(console.error);
+    Promise.all([
+      listRoles(),
+      listLocations(1, 100),
+    ]).then(([roleRes, locRes]) => {
+      setRoles(roleRes.data);
+      setLocations(locRes.data);
+    }).catch(console.error);
     if (!isNew && id) {
-      getUser(id).then(u => setForm({ first_name: u.first_name, last_name: u.last_name, email: u.email })).catch(console.error);
+      getUser(id).then(u => {
+        setForm({ first_name: u.first_name, last_name: u.last_name, email: u.email });
+        if (u.location_id) {
+          setLocationId(u.location_id);
+        } else {
+          setSuperAdmin(true);
+        }
+      }).catch(console.error);
     }
   }, [id, isNew]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isNew && !superAdmin && !locationId) { showToast("Select a location", "error"); return; }
     setSaving(true);
     try {
+      const locValue = superAdmin ? "" : locationId;
       if (isNew) {
-        const user = await createUser({ ...form, role_id: roleId || undefined });
+        const user = await createUser({ ...form, role_id: roleId || undefined, location_id: locValue || undefined });
         showToast("User created successfully");
         navigate(`/app/users/${user.id}`);
       } else {
-        await updateUser(id!, form);
+        await updateUser(id!, { ...form, location_id: locValue || undefined });
         if (roleId) {
           await assignUserRole(id!, roleId);
         }
@@ -59,6 +78,14 @@ export default function UserForm() {
           <option value="">None</option>
           {roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
         </select></label>
+        <label>Location<select value={locationId} onChange={e => setLocationId(e.target.value)} disabled={superAdmin} required={!superAdmin}>
+          <option value="">{superAdmin ? "All Locations" : isNew ? "Select location" : "All Locations"}</option>
+          {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+        </select></label>
+        <label style={{ marginTop: 8 }}>
+          <input type="checkbox" checked={superAdmin} onChange={e => { setSuperAdmin(e.target.checked); if (e.target.checked) setLocationId(""); }} />
+          {" "}Super admin / All locations
+        </label>
         <button type="submit" disabled={saving}>{saving ? "Saving..." : "Save"}</button>
       </form>
     </div>

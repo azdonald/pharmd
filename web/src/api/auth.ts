@@ -10,6 +10,8 @@ export interface AuthResponse {
     first_name: string;
     last_name: string;
     organisation_name: string;
+    location_id: string;
+    location_name: string | null;
   };
 }
 

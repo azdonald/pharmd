@@ -160,6 +160,8 @@ components:
           type: string
         is_active:
           type: boolean
+        location_id:
+          type: string
         created_at:
           type: string
         updated_at:
@@ -181,6 +183,8 @@ components:
           format: email
         role_id:
           type: string
+        location_id:
+          type: string
 
     UpdateUserRequest:
       type: object
@@ -191,6 +195,8 @@ components:
           type: string
         is_active:
           type: boolean
+        location_id:
+          type: string
 
     UserListResponse:
       type: object

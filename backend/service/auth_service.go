@@ -12,6 +12,7 @@ type AuthServiceManager interface {
 	Login(ctx context.Context, email, password string) (*models.User, error)
 	GetUserByID(ctx context.Context, id string) (*models.User, error)
 	GetOrganisationByID(ctx context.Context, id string) (*models.Organisation, error)
+	GetLocationByID(ctx context.Context, id string) (*models.Location, error)
 	CompleteOnboarding(ctx context.Context, orgID string) error
 	ChangePassword(ctx context.Context, userID, oldPassword, newPassword string) error
 }

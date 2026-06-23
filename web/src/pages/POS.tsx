@@ -3,14 +3,16 @@ import { listProducts, type Product } from "../api/products";
 import { listLocations, type Location } from "../api/locations";
 import { listPatients, type Patient } from "../api/patients";
 import { createSale, recordPayment, getReceipt, getDailySummary, closeDay, type Sale } from "../api/pos";
+import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 
 export default function POS() {
+  const { user } = useAuth();
   const [locations, setLocations] = useState<Location[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [cart, setCart] = useState<{ product: Product; qty: number; price: number; discount: number }[]>([]);
-  const [selectedLoc, setSelectedLoc] = useState("");
+  const [selectedLoc, setSelectedLoc] = useState(user?.location_id ?? "");
   const [selectedPatient, setSelectedPatient] = useState("");
   const [productSearch, setProductSearch] = useState("");
   const [saleNotes, setSaleNotes] = useState("");
@@ -35,6 +37,8 @@ export default function POS() {
       setPatients(patRes.data);
     }).catch(console.error);
   }, []);
+
+  const locationLocked = !!user?.location_id;
 
   const filteredProducts = products.filter(p =>
     !productSearch || p.name.toLowerCase().includes(productSearch.toLowerCase())
@@ -140,10 +144,14 @@ export default function POS() {
           <h1>Point of Sale</h1>
         </div>
         <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-          <select value={selectedLoc} onChange={e => setSelectedLoc(e.target.value)} style={{ flex: 1 }}>
-            <option value="">Select location</option>
-            {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
-          </select>
+          {locationLocked ? (
+            <input type="text" value={user?.location_name ?? "Assigned location"} disabled style={{ flex: 1 }} />
+          ) : (
+            <select value={selectedLoc} onChange={e => setSelectedLoc(e.target.value)} style={{ flex: 1 }}>
+              <option value="">Select location</option>
+              {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+            </select>
+          )}
           <select value={selectedPatient} onChange={e => setSelectedPatient(e.target.value)} style={{ flex: 1 }}>
             <option value="">Walk-in (no patient)</option>
             {patients.map(p => <option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>)}

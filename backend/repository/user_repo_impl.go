@@ -21,7 +21,7 @@ func (r *UserRepoImpl) ListUsers(ctx context.Context, page, limit int) ([]models
 	orgID := ctx.Value("organisation_id").(string)
 
 	rows, err := r.db.QueryContext(ctx,
-		`SELECT id, first_name, last_name, email, organisation_id, is_active, created_at, updated_at
+		`SELECT id, first_name, last_name, email, organisation_id, location_id, is_active, created_at, updated_at
 		 FROM users WHERE organisation_id = ? AND deleted_at IS NULL
 		 ORDER BY created_at DESC LIMIT ? OFFSET ?`,
 		orgID, limit, offset,
@@ -35,7 +35,7 @@ func (r *UserRepoImpl) ListUsers(ctx context.Context, page, limit int) ([]models
 	for rows.Next() {
 		var u models.User
 		if err := rows.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Email,
-			&u.OrganisationID, &u.IsActive, &u.CreatedAt, &u.UpdatedAt); err != nil {
+			&u.OrganisationID, &u.LocationID, &u.IsActive, &u.CreatedAt, &u.UpdatedAt); err != nil {
 			return nil, err
 		}
 		users = append(users, u)
@@ -47,10 +47,10 @@ func (r *UserRepoImpl) GetUserByID(ctx context.Context, id string) (*models.User
 	orgID := ctx.Value("organisation_id").(string)
 	user := &models.User{}
 	err := r.db.QueryRowContext(ctx,
-		`SELECT id, first_name, last_name, email, password, organisation_id, is_active, created_at, updated_at
+		`SELECT id, first_name, last_name, email, password, organisation_id, location_id, is_active, created_at, updated_at
 		 FROM users WHERE id = ? AND organisation_id = ? AND deleted_at IS NULL`, id, orgID,
 	).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Password,
-		&user.OrganisationID, &user.IsActive, &user.CreatedAt, &user.UpdatedAt)
+		&user.OrganisationID, &user.LocationID, &user.IsActive, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -62,10 +62,10 @@ func (r *UserRepoImpl) CreateUser(ctx context.Context, user models.User) error {
 	user.OrganisationID = orgID
 
 	_, err := r.db.ExecContext(ctx,
-		`INSERT INTO users (id, first_name, last_name, email, password, organisation_id, is_active, created_at, updated_at)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		`INSERT INTO users (id, first_name, last_name, email, password, organisation_id, location_id, is_active, created_at, updated_at)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		user.ID, user.FirstName, user.LastName, user.Email, user.Password,
-		user.OrganisationID, user.IsActive, user.CreatedAt, user.UpdatedAt,
+		user.OrganisationID, user.LocationID, user.IsActive, user.CreatedAt, user.UpdatedAt,
 	)
 	return err
 }
@@ -82,6 +82,10 @@ func (r *UserRepoImpl) UpdateUser(ctx context.Context, id string, user models.Us
 	if user.LastName != "" {
 		query += ", last_name = ?"
 		args = append(args, user.LastName)
+	}
+	if user.LocationID != "" {
+		query += ", location_id = ?"
+		args = append(args, user.LocationID)
 	}
 	query += fmt.Sprintf(" WHERE id = ? AND organisation_id = ?")
 	args = append(args, id, orgID)

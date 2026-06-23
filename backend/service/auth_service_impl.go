@@ -107,6 +107,10 @@ func (s *AuthService) GetOrganisationByID(ctx context.Context, id string) (*mode
 	return s.authRepo.GetOrganisationByID(ctx, id)
 }
 
+func (s *AuthService) GetLocationByID(ctx context.Context, id string) (*models.Location, error) {
+	return s.locationRepo.GetLocationByID(ctx, id)
+}
+
 func (s *AuthService) CompleteOnboarding(ctx context.Context, orgID string) error {
 	return s.authRepo.UpdateOrganisationOnboarding(ctx, orgID)
 }

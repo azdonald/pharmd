@@ -43,6 +43,7 @@ func AuthMiddleware(userRoleManager service.UserRoleServiceManager) func(http.Ha
 			ctx := context.WithValue(r.Context(), "userClaims", claims)
 			ctx = context.WithValue(ctx, "organisation_id", claims.BusinessID)
 			ctx = context.WithValue(ctx, "user_id", claims.ID)
+			ctx = context.WithValue(ctx, "location_id", claims.LocationID)
 
 			permissions, err := userRoleManager.GetUserPermissions(ctx, claims.ID, claims.BusinessID)
 			if err != nil {

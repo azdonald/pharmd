@@ -10,7 +10,7 @@ const navItems: { to: string; label: string; icon: string }[] = [
   { to: "/app/purchases", label: "Purchases", icon: "receipt_long" },
   { to: "/app/prescriptions", label: "Prescriptions", icon: "description" },
   { to: "/app/dispensing", label: "Dispensing", icon: "pill" },
-  { to: "/app/pos", label: "POS", icon: "point_of_sale" },
+  { to: "/app/retail", label: "Retail", icon: "point_of_sale" },
   { to: "/app/sales", label: "Sales", icon: "bar_chart" },
 ];
 

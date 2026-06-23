@@ -15,12 +15,14 @@ import (
 type Claims struct {
 	ID             string
 	OrganisationID string
+	LocationID     string
 }
 
 type JwtCustomClaims struct {
 	Name       string `json:"name"`
 	ID         string `json:"id"`
 	BusinessID string `json:"business_id"`
+	LocationID string `json:"location_id"`
 	jwt.RegisteredClaims
 }
 
@@ -41,6 +43,7 @@ func CreateAccessToken(user models.User) (string, error) {
 		Name:       user.FirstName + " " + user.LastName,
 		ID:         user.ID,
 		BusinessID: user.OrganisationID,
+		LocationID: user.LocationID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(exp),
 		},
@@ -110,5 +113,6 @@ func ExtractClaimFromContext(ctx context.Context) *Claims {
 	return &Claims{
 		ID:             jwtclaims.ID,
 		OrganisationID: jwtclaims.BusinessID,
+		LocationID:     jwtclaims.LocationID,
 	}
 }

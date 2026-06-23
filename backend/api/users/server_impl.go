@@ -49,13 +49,14 @@ func (s *ServerImpl) GetUsers(w http.ResponseWriter, r *http.Request, params Get
 		createdAt := u.CreatedAt.Format("2006-01-02T15:04:05Z")
 		updatedAt := u.UpdatedAt.Format("2006-01-02T15:04:05Z")
 		responseUsers[i] = User{
-			Id:        &u.ID,
-			FirstName: &u.FirstName,
-			LastName:  &u.LastName,
-			Email:     &u.Email,
-			IsActive:  &u.IsActive,
-			CreatedAt: &createdAt,
-			UpdatedAt: &updatedAt,
+			Id:         &u.ID,
+			FirstName:  &u.FirstName,
+			LastName:   &u.LastName,
+			Email:      &u.Email,
+			IsActive:   &u.IsActive,
+			CreatedAt:  &createdAt,
+			UpdatedAt:  &updatedAt,
+			LocationId: &u.LocationID,
 		}
 	}
 
@@ -79,11 +80,16 @@ func (s *ServerImpl) PostUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	locationID := ""
+	if req.LocationId != nil {
+		locationID = *req.LocationId
+	}
 	user := models.User{
-		FirstName: req.FirstName,
-		LastName:  req.LastName,
-		Email:     string(req.Email),
-		Password:  []byte(randomString(8)),
+		FirstName:  req.FirstName,
+		LastName:   req.LastName,
+		Email:      string(req.Email),
+		Password:   []byte(randomString(8)),
+		LocationID: locationID,
 	}
 
 	created, err := s.userManager.CreateUser(ctx, user)
@@ -108,13 +114,14 @@ func (s *ServerImpl) PostUsers(w http.ResponseWriter, r *http.Request) {
 	updatedAt := created.UpdatedAt.Format("2006-01-02T15:04:05Z")
 
 	response := User{
-		Id:        &created.ID,
-		FirstName: &created.FirstName,
-		LastName:  &created.LastName,
-		Email:     &created.Email,
-		IsActive:  &created.IsActive,
-		CreatedAt: &createdAt,
-		UpdatedAt: &updatedAt,
+		Id:         &created.ID,
+		FirstName:  &created.FirstName,
+		LastName:   &created.LastName,
+		Email:      &created.Email,
+		IsActive:   &created.IsActive,
+		CreatedAt:  &createdAt,
+		UpdatedAt:  &updatedAt,
+		LocationId: &created.LocationID,
 	}
 
 	utils.WriteResponse(ctx, w, response, http.StatusCreated)
@@ -137,13 +144,14 @@ func (s *ServerImpl) GetUsersId(w http.ResponseWriter, r *http.Request, id strin
 	updatedAt := user.UpdatedAt.Format("2006-01-02T15:04:05Z")
 
 	response := User{
-		Id:        &user.ID,
-		FirstName: &user.FirstName,
-		LastName:  &user.LastName,
-		Email:     &user.Email,
-		IsActive:  &user.IsActive,
-		CreatedAt: &createdAt,
-		UpdatedAt: &updatedAt,
+		Id:         &user.ID,
+		FirstName:  &user.FirstName,
+		LastName:   &user.LastName,
+		Email:      &user.Email,
+		IsActive:   &user.IsActive,
+		CreatedAt:  &createdAt,
+		UpdatedAt:  &updatedAt,
+		LocationId: &user.LocationID,
 	}
 
 	utils.WriteResponse(ctx, w, response, http.StatusOK)
@@ -177,6 +185,9 @@ func (s *ServerImpl) PutUsersId(w http.ResponseWriter, r *http.Request, id strin
 	if req.IsActive != nil {
 		existing.IsActive = *req.IsActive
 	}
+	if req.LocationId != nil {
+		existing.LocationID = *req.LocationId
+	}
 
 	updated, err := s.userManager.UpdateUser(ctx, id, *existing)
 	if err != nil {
@@ -188,13 +199,14 @@ func (s *ServerImpl) PutUsersId(w http.ResponseWriter, r *http.Request, id strin
 	updatedAt := updated.UpdatedAt.Format("2006-01-02T15:04:05Z")
 
 	response := User{
-		Id:        &updated.ID,
-		FirstName: &updated.FirstName,
-		LastName:  &updated.LastName,
-		Email:     &updated.Email,
-		IsActive:  &updated.IsActive,
-		CreatedAt: &createdAt,
-		UpdatedAt: &updatedAt,
+		Id:         &updated.ID,
+		FirstName:  &updated.FirstName,
+		LastName:   &updated.LastName,
+		Email:      &updated.Email,
+		IsActive:   &updated.IsActive,
+		CreatedAt:  &createdAt,
+		UpdatedAt:  &updatedAt,
+		LocationId: &updated.LocationID,
 	}
 
 	utils.WriteResponse(ctx, w, response, http.StatusOK)

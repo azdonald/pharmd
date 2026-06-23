@@ -156,20 +156,29 @@ The current app has a strong foundation, but these features are still missing or
 
 ## Workflows
 
-### OTC Medicine Purchase (Customer Walk-in)
+### OTC Medicine Purchase (Pharma Sales Assistant)
 
-1. Customer approaches the POS counter or consultation window.
-2. Pharmacist or staff confirms the OTC product is appropriate (no prescription needed, no clinical red flags).
-3. Staff selects or creates the customer as a patient record (name, date of birth, phone number at minimum; may link to existing profile or create a walk-in guest entry).
-4. Staff adds the OTC product(s) to the POS sale — the system checks available stock in real time:
-   - If insufficient stock, the staff is notified and can offer an alternative or rain check.
-   - If stock is available, the system reserves the quantity (or deducts on completion).
-5. Staff applies any relevant discounts (loyalty, promotion, senior, or manual price override with manager approval if needed).
-6. Staff completes payment — the system supports cash, card, or other tender types and records the transaction.
-7. System generates a receipt (printed or digital) and updates inventory with a deduction from the selected stock batch (FEFO-based if available).
-8. Stock movement record is created with type `sale`, linking to the sale item.
-9. System records the sale in POS history with status `completed`.
-10. Customer receives the product and leaves. If a consultation was provided (e.g., recommendation for a cough medicine), a brief note can optionally be attached to the patient record.
+A customer walks in and wants to buy an OTC medicine (e.g., paracetamol, antihistamine, cough syrup). The sales assistant handles the entire transaction at the POS.
+
+**End-to-end flow and implementation status:**
+
+1. **Open POS page** — The assistant selects the POS module from the sidebar. No till/counter session concept exists, but the POS page is always available. ✅ *Implemented (page loads, location must be selected)*
+
+2. **Select or create patient** — The assistant searches by name/phone. If the customer is new, a quick record is created (name, DOB, phone). Walk-in customers can proceed without a patient record. ✅ *Fully implemented (search, create, walk-in with null patient_id)*
+
+3. **Add product to cart** — The assistant searches products by name or scans a barcode, selects the item, and enters the quantity. ⚠️ *Partially implemented: product search works, but price must be typed manually (no lookup from the Pricing module), and available stock is not shown in the POS view.*
+
+4. **Enter price and discount** — The assistant types the selling price and optionally a discount amount per line item. ✅ *Fully implemented (manual price and discount inputs)*
+
+5. **Record payment** — The assistant enters cash, card, and/or mobile money amounts and submits. The system creates payments, deducts inventory from the best-before (FEFO) batches, creates stock movement records, and marks the sale completed — all in one transaction. ✅ *Fully implemented (cash/card/mobile_money; inventory deduction fixed June 2026)*
+
+6. **Give customer the receipt** — A JSON receipt endpoint exists but there is no printed/PDF receipt. ⚠️ *Partially implemented (JSON data available, no printable template)*
+
+7. **Optionally add a consultation note** — If the assistant gave advice (e.g., "take with food"), a note can be attached to the patient record. ✅ *Fully implemented (patient notes field)*
+
+**Summary: 5 of 7 steps are fully implemented. Steps 3 (no price auto-population, no stock display) and 6 (no printed receipt) are partial.**
+
+The data flow is: POS screen → `/v1/pos/sales` POST (creates sale with items) → `/v1/pos/payments` POST (records payment, deducts FEFO stock, creates `sale`-type stock movement, marks sale `completed`). The complete transaction history is available in the Sales page.
 
 ### Products vs Inventory
 
@@ -192,3 +201,9 @@ The Discounts module manages discount rules — configurable policies that defin
 ### Prescribers
 
 A Prescriber is a healthcare professional (doctor, dentist, nurse practitioner) authorised to write prescriptions. The Prescribers module is a directory of these providers — each record holds the prescriber's name, license number, DEA number (for controlled substances), NPI number, phone, email, specialty, and address. Prescribers are a required foreign key in the Prescriptions workflow: every prescription must reference a prescriber, and the prescription list/detail views JOIN to the prescribers table to display the prescriber's name. Uses soft deletes. API at `/prescribers` with `prescribers:*` permissions.
+
+### Pricing (Product Prices)
+
+The Pricing module manages per-product, per-location selling prices. Each `product_prices` record holds a `selling_price`, `cost_price`, `min_price` (price floor), and `max_discount` for a specific product at a specific location. The API uses `ON DUPLICATE KEY UPDATE` semantics so setting a price for the same product+location overwrites the previous one. API at `/pricing` with `pricing:*` permissions.
+
+**Functional status: Does not work end-to-end.** The pricing module is a standalone CRUD system for managing price records, but it is fully disconnected from the POS transaction flow. When a cashier rings up a sale in the POS page (`web/src/pages/POS.tsx:48`), the `unit_price` starts at `0` and must be typed in manually — there is no API call to look up the product's price from the pricing module. The POS API handler (`backend/api/pos/server_impl.go:129`) passes the user-entered `unit_price` straight through to the database without any lookup or validation against `product_prices`. The `max_discount` field is also never enforced. This means a cashier can charge any amount for any product regardless of what the pricing module says. Fixing this would require: (1) a price-lookup endpoint or including prices in the product list response, (2) the POS frontend to auto-populate unit_price from that data, and (3) backend validation that the submitted price does not violate `min_price` or `max_discount` constraints.

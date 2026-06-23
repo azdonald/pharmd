@@ -87,7 +87,7 @@ export default function App() {
             <Route path="prescriptions/:id" element={<PrescriptionDetail />} />
             <Route path="dispensing" element={<DispensingQueue />} />
             <Route path="dispensing/:id" element={<DispenseDetail />} />
-            <Route path="pos" element={<POS />} />
+            <Route path="retail" element={<POS />} />
             <Route path="sales" element={<SalesHistory />} />
           </Route>
         </Routes>

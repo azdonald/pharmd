@@ -224,5 +224,9 @@ components:
           type: string
         organisation_id:
           type: string
+        location_id:
+          type: string
+        location_name:
+          type: string
         onboarding_completed:
           type: boolean

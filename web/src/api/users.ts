@@ -6,6 +6,7 @@ export interface User {
   last_name: string;
   email: string;
   is_active: boolean;
+  location_id?: string;
   created_at: string;
   updated_at: string;
 }
@@ -25,11 +26,11 @@ export function getUser(id: string) {
   return apiRequest<User>(`/users/${id}`);
 }
 
-export function createUser(data: { first_name: string; last_name: string; email: string; role_id?: string }) {
+export function createUser(data: { first_name: string; last_name: string; email: string; role_id?: string; location_id?: string }) {
   return apiRequest<User>("/users", { method: "POST", body: JSON.stringify(data) });
 }
 
-export function updateUser(id: string, data: { first_name?: string; last_name?: string; is_active?: boolean }) {
+export function updateUser(id: string, data: { first_name?: string; last_name?: string; is_active?: boolean; location_id?: string }) {
   return apiRequest<User>(`/users/${id}`, { method: "PUT", body: JSON.stringify(data) });
 }
 

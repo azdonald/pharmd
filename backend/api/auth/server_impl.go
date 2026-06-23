@@ -42,6 +42,16 @@ func (s serverImpl) PostAuthLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var locationName *string
+	if user.LocationID != "" {
+		loc, err := s.authManager.GetLocationByID(ctx, user.LocationID)
+		if err != nil {
+			log.Println("Error fetching location:", err)
+		} else {
+			locationName = &loc.Name
+		}
+	}
+
 	accessToken, err := utils.CreateAccessToken(*user)
 	if err != nil {
 		http.Error(w, "Failed to create access token", http.StatusInternalServerError)
@@ -65,6 +75,8 @@ func (s serverImpl) PostAuthLogin(w http.ResponseWriter, r *http.Request) {
 			Email:               &user.Email,
 			OrganisationName:    &org.Name,
 			OrganisationId:      &org.ID,
+			LocationId:          &user.LocationID,
+			LocationName:        locationName,
 			OnboardingCompleted: &org.OnboardingCompleted,
 		},
 	}
@@ -104,6 +116,16 @@ func (s serverImpl) PostAuthRefresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var locationName *string
+	if user.LocationID != "" {
+		loc, err := s.authManager.GetLocationByID(ctx, user.LocationID)
+		if err != nil {
+			log.Println("Error fetching location:", err)
+		} else {
+			locationName = &loc.Name
+		}
+	}
+
 	accessToken, err := utils.CreateAccessToken(*user)
 	if err != nil {
 		http.Error(w, "Failed to create access token", http.StatusInternalServerError)
@@ -127,6 +149,8 @@ func (s serverImpl) PostAuthRefresh(w http.ResponseWriter, r *http.Request) {
 			Email:               &user.Email,
 			OrganisationName:    &org.Name,
 			OrganisationId:      &org.ID,
+			LocationId:          &user.LocationID,
+			LocationName:        locationName,
 			OnboardingCompleted: &org.OnboardingCompleted,
 		},
 	}
@@ -192,6 +216,7 @@ func (s serverImpl) PostAuthRegister(w http.ResponseWriter, r *http.Request) {
 			Email:               &u.Email,
 			OrganisationName:    &orgData.Name,
 			OrganisationId:      &orgData.ID,
+			LocationId:          &u.LocationID,
 			OnboardingCompleted: &orgData.OnboardingCompleted,
 		},
 	}
