@@ -4,23 +4,26 @@ import { useAuth } from "../context/AuthContext";
 import { LogOut } from "lucide-react";
 const navItems: { to: string; label: string; icon: string }[] = [
   { to: "/app", label: "Dashboard", icon: "dashboard" },
-  { to: "/app/users", label: "Users", icon: "group" },
-  { to: "/app/roles", label: "Roles", icon: "admin_panel_settings" },
-  { to: "/app/permissions", label: "Permissions", icon: "key" },
-  { to: "/app/locations", label: "Locations", icon: "location_on" },
   { to: "/app/patients", label: "Patients", icon: "patient_list" },
   { to: "/app/products", label: "Products", icon: "medication" },
-  { to: "/app/categories", label: "Categories", icon: "category" },
   { to: "/app/inventory", label: "Inventory", icon: "inventory_2" },
   { to: "/app/suppliers", label: "Suppliers", icon: "local_shipping" },
   { to: "/app/purchases", label: "Purchases", icon: "receipt_long" },
-  { to: "/app/pricing", label: "Pricing", icon: "attach_money" },
-  { to: "/app/discounts", label: "Discounts", icon: "percent" },
-  { to: "/app/prescribers", label: "Prescribers", icon: "stethoscope" },
   { to: "/app/prescriptions", label: "Prescriptions", icon: "description" },
   { to: "/app/dispensing", label: "Dispensing", icon: "pill" },
   { to: "/app/pos", label: "POS", icon: "point_of_sale" },
   { to: "/app/sales", label: "Sales", icon: "bar_chart" },
+];
+
+const settingsItems: { to: string; label: string; icon: string }[] = [
+  { to: "/app/users", label: "Users", icon: "group" },
+  { to: "/app/roles", label: "Roles", icon: "admin_panel_settings" },
+  { to: "/app/permissions", label: "Permissions", icon: "key" },
+  { to: "/app/locations", label: "Locations", icon: "location_on" },
+  { to: "/app/categories", label: "Categories", icon: "category" },
+  { to: "/app/pricing", label: "Pricing", icon: "attach_money" },
+  { to: "/app/discounts", label: "Discounts", icon: "percent" },
+  { to: "/app/prescribers", label: "Prescribers", icon: "stethoscope" },
 ];
 
 function Icon({ name, className }: { name: string; className?: string }) {
@@ -37,6 +40,7 @@ export function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(true);
 
   const handleLogout = () => {
     setSidebarOpen(false);
@@ -116,6 +120,42 @@ export function Layout() {
                   <Icon
                     name={icon}
                     className={`mr-3 ${isActive ? "" : "group-hover:text-primary"}`}
+                  />
+                  <span>{label}</span>
+                </>
+              )}
+            </NavLink>
+          ))}
+
+          {/* Settings group */}
+          <button
+            onClick={() => setSettingsOpen(!settingsOpen)}
+            className="relative flex w-full items-center px-6 py-3 text-on-surface-variant transition-colors duration-200 hover:bg-surface-container-high hover:text-primary group"
+          >
+            <Icon name="settings" className="mr-3 group-hover:text-primary" />
+            <span className="flex-1 text-left">Settings</span>
+            <Icon name={settingsOpen ? "expand_less" : "expand_more"} />
+          </button>
+
+          {settingsOpen && settingsItems.map(({ to, label, icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              onClick={() => setSidebarOpen(false)}
+              className={({ isActive }) =>
+                `relative flex items-center py-3 transition-colors duration-200 pl-14 pr-6 ${
+                  isActive
+                    ? "bg-surface-container-low font-bold text-primary"
+                    : "group text-on-surface-variant hover:bg-surface-container-high hover:text-primary"
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  {isActive && <SidebarIndicator />}
+                  <Icon
+                    name={icon}
+                    className={`mr-3 text-base ${isActive ? "" : "group-hover:text-primary"}`}
                   />
                   <span>{label}</span>
                 </>
